@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#434423">
+<title>KosanKu — Pembayaran Kos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   PALET WARNA (dari referensi)
+   ========================================================= */
+:root{
+  --olive:#434423;      /* hijau zaitun tua  */
+  --olive-2:#5B5E34;
+  --olive-3:#2E2F17;
+  --sage:#B0B98A;       /* hijau sage        */
+  --sage-2:#CDD3AE;
+  --sand:#DFDABB;       /* krem pasir        */
+  --cream:#F5F2E2;      /* krem terang       */
+  --paper:#FBF9F1;
+  --ink:#2A2B16;
+  --muted:#6F7055;
+  --rust:#B5603E;  --rust-bg:#F4DED0;   /* status belum bayar */
+  --amber:#B8872A; --amber-bg:#F3E6C3;  /* status menunggu    */
+  --radius:20px;
+  --shadow:0 1px 2px rgba(46,47,23,.06),0 8px 24px -8px rgba(46,47,23,.18);
+  --shadow-lg:0 30px 60px -20px rgba(46,47,23,.35);
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,.serif{font-family:Fraunces,Georgia,serif;letter-spacing:-.01em}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select{font:inherit;color:inherit}
+.hidden{display:none!important}
+
+/* ---------- animasi dasar ---------- */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(176,185,138,.7)}100%{box-shadow:0 0 0 18px rgba(176,185,138,0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes scan{0%,100%{top:6%}50%{top:88%}}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
+@keyframes windowOn{0%,100%{fill:var(--olive-2)}50%{fill:#F2D98A}}
+.reveal{opacity:0;animation:fadeUp .7s var(--ease) forwards;animation-delay:calc(var(--i,0) * 70ms)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}}
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+#login{display:grid;grid-template-columns:1.05fr 1fr;min-height:100vh}
+.login-art{background:var(--olive);color:var(--cream);padding:48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.login-art::before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(176,185,138,.25),transparent 65%);right:-160px;top:-120px;animation:float 9s ease-in-out infinite}
+.brand{display:flex;align-items:center;gap:10px;font-family:Fraunces,serif;font-size:22px;font-weight:600}
+.brand-mark{width:38px;height:38px;border-radius:12px;background:var(--sage);display:grid;place-items:center;color:var(--olive)}
+.login-art h1{font-size:clamp(34px,4vw,52px);line-height:1.05;max-width:12ch;margin:28px 0 14px}
+.login-art h1 em{font-style:italic;color:var(--sage)}
+.login-art p{opacity:.8;max-width:42ch;line-height:1.6}
+.house{width:100%;max-width:440px;margin:24px auto 0;animation:float 6s ease-in-out infinite}
+.house .win{animation:windowOn 4s ease-in-out infinite}
+.login-feat{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;opacity:.85}
+.login-feat span{display:flex;align-items:center;gap:6px}
+.login-feat i{width:8px;height:8px;border-radius:50%;background:var(--sage);display:inline-block}
+
+.login-form-wrap{display:grid;place-items:center;padding:40px 24px;background:var(--cream)}
+.login-card{width:100%;max-width:400px}
+.login-card h2{font-size:34px;margin-bottom:6px}
+.login-card .sub{color:var(--muted);margin-bottom:28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:7px;color:var(--olive)}
+.input{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--sand);background:var(--paper);outline:none;transition:border-color .25s,box-shadow .25s,transform .2s}
+.input:focus{border-color:var(--sage);box-shadow:0 0 0 4px rgba(176,185,138,.3)}
+.pw-wrap{position:relative}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:var(--muted);padding:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 22px;border-radius:14px;font-weight:600;transition:transform .2s var(--ease),box-shadow .25s,background .25s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--olive);color:var(--cream);box-shadow:0 10px 24px -10px rgba(67,68,35,.7)}
+.btn-primary:hover{background:var(--olive-3);transform:translateY(-2px)}
+.btn-sage{background:var(--sage);color:var(--olive-3)}
+.btn-sage:hover{background:var(--sage-2);transform:translateY(-2px)}
+.btn-ghost{background:transparent;border:1.5px solid var(--sand);color:var(--olive)}
+.btn-ghost:hover{background:var(--sand)}
+.btn-block{width:100%}
+.btn-sm{padding:9px 14px;border-radius:11px;font-size:13px}
+.err{color:var(--rust);font-size:13px;min-height:20px;margin:-4px 0 10px}
+.shake{animation:shake .5s}
+.demo-box{margin-top:26px;padding:16px;border-radius:16px;background:var(--sand);font-size:13px}
+.demo-box b{color:var(--olive)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{padding:6px 11px;border-radius:999px;background:var(--paper);font-size:12px;font-weight:600;transition:all .2s}
+.chip:hover{background:var(--olive);color:var(--cream);transform:translateY(-2px)}
+.chip.owner{background:var(--olive);color:var(--cream)}
+
+/* =========================================================
+   APP SHELL
+   ========================================================= */
+.topbar{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(245,242,226,.82);border-bottom:1px solid rgba(223,218,187,.7)}
+.topbar-in{max-width:1180px;margin:auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar .brand{color:var(--olive);font-size:20px}
+.topbar .brand-mark{width:34px;height:34px;background:var(--olive);color:var(--sage)}
+.user-chip{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--sage);color:var(--olive);display:grid;place-items:center;font-weight:700;font-size:14px}
+.user-chip small{display:block;color:var(--muted);font-size:11px}
+.sandbox-bar{background:var(--olive-3);color:var(--sand);font-size:12px;text-align:center;padding:7px 12px}
+.sandbox-bar b{color:var(--sage)}
+main{max-width:1180px;margin:auto;padding:28px 24px 80px}
+.card{background:var(--paper);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);border:1px solid rgba(223,218,187,.6)}
+.section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:34px 0 14px;flex-wrap:wrap}
+.section-title h3{font-size:24px}
+.section-title p{color:var(--muted);font-size:14px}
+
+/* ---------- penghuni hero ---------- */
+.hero{background:var(--olive);color:var(--cream);border-radius:28px;padding:32px;display:grid;grid-template-columns:1.3fr 1fr;gap:28px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:auto -80px -140px auto;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(176,185,138,.3),transparent 70%)}
+.hero h2{font-size:clamp(28px,3.4vw,40px);line-height:1.1}
+.hero .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(245,242,226,.12)}
+.status-box{background:var(--cream);color:var(--ink);border-radius:22px;padding:22px;position:relative;z-index:1}
+.status-box .label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.status-box .month{font-family:Fraunces,serif;font-size:26px;margin:4px 0 10px}
+.status-box .amount{font-size:30px;font-weight:700;color:var(--olive);margin-bottom:14px}
+.btn-pay{width:100%;font-size:16px;padding:16px;animation:pulseRing 2s infinite}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.b-lunas{background:var(--sage-2);color:var(--olive)}
+.b-belum{background:var(--rust-bg);color:var(--rust)}
+.b-telat{background:var(--rust);color:#fff}
+.b-telat::before{background:#fff}
+.b-pending{background:var(--amber-bg);color:var(--amber)}
+.b-next{background:var(--sand);color:var(--muted)}
+.b-none{background:transparent;color:var(--muted);border:1px dashed var(--sand)}
+
+/* langkah */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+.step{display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:18px;background:var(--paper);border:1px solid rgba(223,218,187,.7);transition:transform .3s var(--ease),box-shadow .3s}
+.step:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.step .num{flex:none;width:40px;height:40px;border-radius:12px;background:var(--sand);display:grid;place-items:center;font-family:Fraunces,serif;font-weight:700;color:var(--olive)}
+.step b{display:block;margin-bottom:3px}
+.step span{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* grid bulan */
+.year-switch{display:flex;align-items:center;gap:6px;background:var(--paper);padding:5px;border-radius:14px;border:1px solid var(--sand)}
+.year-switch button{width:34px;height:34px;border-radius:10px;font-weight:700;transition:background .2s}
+.year-switch button:hover{background:var(--sand)}
+.year-switch span{font-weight:700;min-width:52px;text-align:center}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.mcard{padding:16px;border-radius:18px;background:var(--paper);border:1.5px solid rgba(223,218,187,.8);transition:transform .3s var(--ease),box-shadow .3s,border-color .3s;position:relative;text-align:left}
+.mcard .m{font-family:Fraunces,serif;font-size:20px;font-weight:600}
+.mcard .y{font-size:12px;color:var(--muted);margin-bottom:12px}
+.mcard.click{cursor:pointer}
+.mcard.click:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:var(--sage)}
+.mcard.is-lunas{background:linear-gradient(160deg,var(--paper),rgba(205,211,174,.55))}
+.mcard.is-now{border-color:var(--olive);box-shadow:0 0 0 3px rgba(67,68,35,.12)}
+.mcard .now-tag{position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--olive);text-transform:uppercase}
+.mcard .hint{font-size:11px;color:var(--olive);font-weight:600;margin-top:10px;opacity:0;transform:translateY(4px);transition:all .25s}
+.mcard.click:hover .hint{opacity:1;transform:none}
+
+/* riwayat */
+.two-col{display:grid;grid-template-columns:1.2fr 1fr;gap:18px}
+.list{display:flex;flex-direction:column}
+.li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 4px;border-bottom:1px dashed var(--sand)}
+.li:last-child{border-bottom:none}
+.li .ic{width:40px;height:40px;border-radius:12px;background:var(--sage-2);display:grid;place-items:center;color:var(--olive);flex:none}
+.li .t{font-weight:600}
+.li small{color:var(--muted);font-size:12px}
+.empty{padding:28px;text-align:center;color:var(--muted);font-size:14px}
+
+/* =========================================================
+   PEMILIK
+   ========================================================= */
+.tabs{display:inline-flex;gap:4px;background:var(--paper);padding:5px;border-radius:16px;border:1px solid var(--sand);position:relative}
+.tab{padding:10px 18px;border-radius:12px;font-weight:600;font-size:14px;color:var(--muted);position:relative;z-index:1;transition:color .3s}
+.tab.active{color:var(--cream)}
+.tab-ind{position:absolute;top:5px;bottom:5px;border-radius:12px;background:var(--olive);transition:all .45s var(--ease);z-index:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat{padding:22px;border-radius:22px;background:var(--paper);border:1px solid rgba(223,218,187,.7);box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .3s var(--ease)}
+.stat:hover{transform:translateY(-4px)}
+.stat.dark{background:var(--olive);color:var(--cream)}
+.stat .k{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;opacity:.7}
+.stat .v{font-family:Fraunces,serif;font-size:34px;font-weight:700;margin:8px 0 4px}
+.stat .d{font-size:13px;opacity:.75}
+.ring{position:absolute;right:16px;top:16px;width:64px;height:64px}
+.ring circle{fill:none;stroke-width:7}
+.ring .bg{stroke:rgba(245,242,226,.15)}
+.ring .fg{stroke:var(--sage);stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset 1.4s var(--ease)}
+
+.matrix-wrap{overflow-x:auto;border-radius:20px;background:var(--paper);border:1px solid rgba(223,218,187,.8);box-shadow:var(--shadow)}
+table.matrix{border-collapse:separate;border-spacing:0;width:100%;min-width:900px}
+.matrix th,.matrix td{padding:10px 6px;text-align:center;font-size:13px}
+.matrix thead th{font-weight:700;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--sand);position:sticky;top:0;background:var(--paper)}
+.matrix thead th.cur{color:var(--olive)}
+.matrix td.room{text-align:left;padding-left:18px;min-width:170px;position:sticky;left:0;background:var(--paper);z-index:1}
+.matrix td.room b{display:block}
+.matrix td.room small{color:var(--muted);font-size:11px}
+.matrix tbody tr{transition:background .2s}
+.matrix tbody tr:hover td{background:rgba(223,218,187,.3)}
+.cell{width:38px;height:38px;border-radius:11px;display:inline-grid;place-items:center;font-size:15px;font-weight:700;transition:transform .25s var(--ease),box-shadow .25s;opacity:0;animation:pop .45s var(--ease) forwards}
+.cell:hover{transform:scale(1.18);box-shadow:var(--shadow)}
+.c-lunas{background:var(--sage);color:var(--olive-3)}
+.c-manual{background:var(--sage-2);color:var(--olive);outline:2px dashed var(--sage);outline-offset:-4px}
+.c-belum{background:var(--rust-bg);color:var(--rust)}
+.c-telat{background:var(--rust);color:#fff}
+.c-next{background:var(--cream);color:var(--sand);border:1.5px dashed var(--sand)}
+.c-none{background:transparent;color:var(--sand)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:16px;height:16px;border-radius:5px;display:inline-block}
+
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.room-card{padding:20px;border-radius:22px;background:var(--paper);border:1px solid rgba(223,218,187,.8);box-shadow:var(--shadow);transition:transform .3s var(--ease)}
+.room-card:hover{transform:translateY(-5px)}
+.room-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.room-no{font-family:Fraunces,serif;font-size:13px;font-weight:700;color:var(--olive);background:var(--sand);padding:5px 10px;border-radius:10px}
+.room-card h4{font-size:18px;font-family:Fraunces,serif}
+.room-card .u{font-size:13px;color:var(--muted);margin:2px 0 12px}
+.room-card .price{font-weight:700;color:var(--olive);margin-bottom:14px}
+.room-card .acts{display:flex;gap:8px}
+.progress{height:8px;border-radius:99px;background:var(--sand);overflow:hidden;margin-bottom:6px}
+.progress div{height:100%;background:var(--olive);border-radius:99px;width:0;transition:width 1.2s var(--ease)}
+.prog-label{font-size:12px;color:var(--muted);margin-bottom:14px}
+
+table.tx{width:100%;border-collapse:collapse}
+.tx th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:12px;border-bottom:1px solid var(--sand)}
+.tx td{padding:14px 12px;border-bottom:1px dashed var(--sand);font-size:14px}
+.tx tr{animation:fadeUp .5s var(--ease) both}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+.overlay{position:fixed;inset:0;background:rgba(46,47,23,.45);backdrop-filter:blur(6px);z-index:50;display:grid;place-items:center;padding:20px;animation:fadeIn .3s}
+.modal{background:var(--paper);border-radius:28px;width:100%;max-width:440px;max-height:92vh;overflow:auto;box-shadow:var(--shadow-lg);animation:pop .45s var(--ease)}
+.modal.wide{max-width:520px}
+.modal-head{padding:22px 24px 0;display:flex;justify-content:space-between;align-items:start;gap:12px}
+.modal-head h3{font-size:24px}
+.modal-head p{color:var(--muted);font-size:13px;margin-top:3px}
+.x{width:36px;height:36px;border-radius:50%;background:var(--cream);font-size:18px;flex:none;transition:transform .3s,background .2s}
+.x:hover{transform:rotate(90deg);background:var(--sand)}
+.modal-body{padding:20px 24px 24px}
+
+/* QR */
+.qris-card{background:#fff;border-radius:22px;padding:18px;border:1.5px solid var(--sand);text-align:center;position:relative}
+.qris-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.qris-logo{font-weight:800;letter-spacing:.06em;font-size:18px;color:var(--olive)}
+.sbx{font-size:10px;font-weight:700;background:var(--amber-bg);color:var(--amber);padding:4px 8px;border-radius:7px}
+.qr-box{position:relative;width:220px;height:220px;margin:6px auto 10px}
+.qr-box svg{width:100%;height:100%}
+.qr-box .scanline{position:absolute;left:4%;right:4%;height:3px;background:linear-gradient(90deg,transparent,var(--sage),transparent);box-shadow:0 0 12px var(--sage);animation:scan 2.4s ease-in-out infinite;border-radius:2px}
+.qr-box rect.mod{opacity:0;animation:fadeIn .4s forwards}
+.qr-merchant{font-size:13px;color:var(--muted)}
+.qr-amount{font-size:28px;font-weight:800;color:var(--olive);margin:2px 0}
+.timer{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--amber);background:var(--amber-bg);padding:6px 12px;border-radius:99px;margin-top:6px}
+.waiting{display:flex;align-items:center;gap:10px;justify-content:center;font-size:14px;color:var(--muted);margin:16px 0 4px}
+.dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--sage);margin:0 2px;animation:float 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+.mini-steps{display:flex;flex-direction:column;gap:8px;margin:16px 0;font-size:13px}
+.mini-steps div{display:flex;gap:10px;align-items:center}
+.mini-steps b{width:22px;height:22px;border-radius:50%;background:var(--sand);display:grid;place-items:center;font-size:11px;flex:none;color:var(--olive)}
+.sim-box{border:1.5px dashed var(--amber);border-radius:16px;padding:12px;background:var(--amber-bg);font-size:12px;color:#6b5320;margin-top:14px}
+.sim-box .btn{margin-top:8px}
+.spinner{width:56px;height:56px;border-radius:50%;border:5px solid var(--sand);border-top-color:var(--olive);animation:spin .9s linear infinite;margin:30px auto 16px}
+.success{text-align:center;padding:10px 0}
+.check{width:110px;height:110px;margin:6px auto 10px}
+.check circle{fill:var(--sage);transform-origin:center;animation:pop .5s var(--ease)}
+.check path{fill:none;stroke:var(--olive-3);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:80;stroke-dashoffset:80;animation:draw .5s .35s var(--ease) forwards}
+.success h3{font-size:28px}
+.receipt{margin:16px 0;text-align:left;background:var(--cream);border-radius:16px;padding:14px 16px;font-size:13px}
+.receipt div{display:flex;justify-content:space-between;padding:5px 0}
+.receipt span{color:var(--muted)}
+.month-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 4px}
+.mp{padding:10px 6px;border-radius:12px;border:1.5px solid var(--sand);font-size:13px;font-weight:600;transition:all .2s}
+.mp.on{background:var(--olive);color:var(--cream);border-color:var(--olive)}
+.mp:disabled{opacity:.35;cursor:not-allowed}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin:14px 0;padding:14px 16px;border-radius:16px;background:var(--cream)}
+.total-row b{font-size:22px;color:var(--olive)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg label{padding:12px;border-radius:14px;border:1.5px solid var(--sand);text-align:center;font-weight:600;font-size:14px;cursor:pointer;transition:all .2s}
+.seg input{display:none}
+.seg input:checked+label{background:var(--olive);color:var(--cream);border-color:var(--olive)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* toast */
+#toasts{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center}
+.toast{background:var(--olive-3);color:var(--cream);padding:12px 18px;border-radius:14px;font-size:14px;box-shadow:var(--shadow-lg);animation:fadeUp .4s var(--ease);display:flex;gap:8px;align-items:center}
+.toast.out{transition:all .35s;opacity:0;transform:translateY(10px)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:90}
+footer{text-align:center;font-size:12px;color:var(--muted);padding:20px}
+footer button{text-decoration:underline;color:var(--olive);font-size:12px}
+
+/* responsive */
+@media (max-width:900px){
+  #login{grid-template-columns:1fr}
+  .login-art{padding:32px 24px;min-height:auto}
+  .house{max-width:300px}
+  .hero{grid-template-columns:1fr;padding:24px}
+  .stats{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .stats{grid-template-columns:1fr}
+  .user-chip .who{display:none}
+  main{padding:20px 16px 70px}
+  .tabs{width:100%;overflow-x:auto}
+  .tab{padding:10px 12px;font-size:13px;white-space:nowrap}
+}
+
+/* ---------- tambahan versi asli ---------- */
+.boot{min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px}
+.boot .spinner{margin:0 auto 16px}
+.boot h2{font-size:28px;margin-bottom:8px}
+.boot p{color:var(--muted);max-width:46ch;line-height:1.6;margin:auto}
+.notice{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:14px 18px;border-radius:18px;margin-bottom:18px;font-size:14px;animation:fadeUp .5s var(--ease)}
+.notice.warn{background:var(--amber-bg);color:#6b5320;border:1px solid #e6cf92}
+.notice.info{background:var(--sage-2);color:var(--olive)}
+.qr-box svg{display:block;border-radius:8px}
+.qr-box .qr-fade{animation:pop .5s var(--ease)}
+.pay-link{display:block;text-align:center;font-size:13px;font-weight:600;color:var(--olive);margin-top:10px;text-decoration:underline}
+a.btn{text-decoration:none}
+.login-note{margin-top:22px;padding:14px 16px;border-radius:16px;background:var(--sand);font-size:13px;line-height:1.6;color:var(--olive)}
+.btn[disabled]{opacity:.55;pointer-events:none}
+.btn .spinner{width:18px;height:18px;border-width:3px;margin:0}
+</style>
+</head>
+<body>
+
+<!-- ======================= MEMUAT ======================= -->
+<section id="boot" class="boot"><div><div class="spinner"></div><p>Memuat…</p></div></section>
+
+<!-- ======================= LOGIN ======================= -->
+<section id="login" class="hidden">
+  <div class="login-art">
+    <div>
+      <div class="brand reveal"><span class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
+      </span><span class="kos-name">KosanKu</span></div>
+      <h1 class="reveal" style="--i:1">Bayar kos jadi <em>tenang</em>, tanpa tanya-tanya.</h1>
+      <p class="reveal" style="--i:2">Scan QRIS, bayar, selesai. Status pembayaran langsung tercatat otomatis, jadi anak kos, orang tua, dan pemilik kos sama-sama bisa melihatnya.</p>
+    </div>
+    <div class="reveal" style="--i:3"><svg class="house" viewBox="0 0 400 260" aria-hidden="true">
+      <rect x="20" y="236" width="360" height="6" rx="3" fill="#2E2F17"/>
+      <path d="M60 110 L200 30 L340 110 Z" fill="#B0B98A"/>
+      <rect x="70" y="108" width="260" height="130" rx="6" fill="#DFDABB"/>
+      <rect x="180" y="185" width="40" height="53" rx="5" fill="#434423"/>
+      <circle cx="212" cy="212" r="2.5" fill="#B0B98A"/>
+      <g id="houseWindows"></g>
+      <rect x="250" y="44" width="22" height="40" fill="#5B5E34"/>
+    </svg></div>
+    <div class="login-feat reveal" style="--i:4">
+      <span><i></i>QRIS otomatis</span><span><i></i>Status real-time</span><span><i></i>Mudah untuk orang tua</span>
+    </div>
+  </div>
+
+  <div class="login-form-wrap">
+    <div class="login-card" id="loginCard">
+      <h2 class="reveal">Selamat datang 👋</h2>
+      <p class="sub reveal" style="--i:1">Masuk pakai username dan password dari pemilik kos.</p>
+      <div class="field reveal" style="--i:2">
+        <label for="lu">Username</label>
+        <input class="input" id="lu" placeholder="contoh: kamar1" autocomplete="username" autocapitalize="none" spellcheck="false">
+      </div>
+      <div class="field reveal" style="--i:3">
+        <label for="lp">Password</label>
+        <div class="pw-wrap">
+          <input class="input" id="lp" type="password" placeholder="••••••" autocomplete="current-password">
+          <button type="button" class="pw-toggle" id="pwToggle">Lihat</button>
+        </div>
+      </div>
+      <div class="err" id="loginErr"></div>
+      <button class="btn btn-primary btn-block reveal" style="--i:4" type="button" id="loginBtn">Masuk</button>
+      <div class="login-note reveal" style="--i:5">Lupa password? Minta pemilik kos untuk mereset password kamarmu.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================= APP ======================= -->
+<section id="app" class="hidden">
+  <div class="sandbox-bar hidden" id="sandboxBar">🧪 <b>Mode Sandbox Duitku</b>: pembayaran masih uji coba dan belum ada uang sungguhan yang berpindah.</div>
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="brand"><span class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
+      </span><span class="kos-name">KosanKu</span></div>
+      <div class="user-chip">
+        <div class="who" style="text-align:right"><b id="whoName"></b><small id="whoRole"></small></div>
+        <div class="avatar" id="whoAvatar"></div>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn" type="button">Keluar</button>
+      </div>
+    </div>
+  </header>
+  <main id="view"></main>
+  <footer><span class="kos-name">KosanKu</span> · pembayaran QRIS diproses oleh Duitku</footer>
+</section>
+
+<div id="modalRoot"></div>
+<div id="toasts"></div>
+<canvas id="confetti"></canvas>
+
+<script>
+/* =========================================================
+   KONSTANTA & HELPER
+   ========================================================= */
+const BULAN = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+const BULAN_PANJANG = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+let CFG = { kosName:"KosanKu", dueDay:10, currentMonth:null, duitkuEnv:"sandbox", duitkuReady:false };
+let CUR = null;
+
+const keyOf = (y,m) => `${y}-${String(m+1).padStart(2,"0")}`;
+const addM = (k,n) => { const [y,m]=k.split("-").map(Number); const t=y*12+(m-1)+n; return `${Math.floor(t/12)}-${String(t%12+1).padStart(2,"0")}`; };
+const parts = k => { const [y,m]=k.split("-").map(Number); return {y, m:m-1}; };
+const labelM = k => { const p=parts(k); return `${BULAN_PANJANG[p.m]} ${p.y}`; };
+const shortM = k => { const p=parts(k); return `${BULAN[p.m]} ${p.y}`; };
+const rupiah = n => "Rp" + Number(n||0).toLocaleString("id-ID");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtDate = iso => new Date(iso).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
+const $ = s => document.querySelector(s);
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+
+/* Panggil API server */
+async function api(path, { method="GET", body } = {}){
+  let r;
+  try{
+    r = await fetch("/api/"+path, { method, credentials:"same-origin",
+      headers: body ? {"Content-Type":"application/json"} : {}, body: body ? JSON.stringify(body) : undefined });
+  }catch(e){ const err = new Error("Tidak bisa terhubung ke server. Cek koneksi internet."); err.network = true; throw err; }
+  let data = {};
+  try{ data = await r.json(); }catch(e){ if(!r.ok){ const err=new Error("Server tidak merespons dengan benar."); err.network=true; throw err; } }
+  if(!r.ok){ const err = new Error(data.error || "Terjadi kesalahan."); err.status = r.status; throw err; }
+  return data;
+}
+function handleErr(e){
+  if(e.status===401){ toast("Sesi berakhir, silakan login lagi","🔒"); return showLogin(); }
+  toast(e.message || "Terjadi kesalahan","⚠️");
+}
+
+/* Form tanpa <form> submit (supaya jalan di semua browser/preview): Enter = klik tombol */
+function bindEnter(container, btn){
+  container.querySelectorAll("input, select").forEach(i => i.addEventListener("keydown", e => { if(e.key==="Enter"){ e.preventDefault(); btn.click(); } }));
+}
+function vals(container){
+  const o={}; container.querySelectorAll("[name]").forEach(i => { if(i.type==="radio"){ if(i.checked) o[i.name]=i.value; } else o[i.name]=i.value; }); return o;
+}
+async function busy(btn, fn){
+  if(btn.disabled) return;
+  const html = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try{ return await fn(); } finally { btn.disabled = false; btn.innerHTML = html; }
+}
+
+/* toast */
+function toast(msg, icon="✓"){
+  const t = document.createElement("div"); t.className="toast"; t.innerHTML=`<span>${icon}</span>${esc(msg)}`;
+  $("#toasts").appendChild(t);
+  setTimeout(()=>{ t.classList.add("out"); setTimeout(()=>t.remove(),400); }, 3000);
+}
+
+/* modal */
+let modalCleanup = null;
+function openModal(html, cls=""){
+  if(modalCleanup){ modalCleanup(); modalCleanup=null; }
+  const root = $("#modalRoot");
+  root.innerHTML = `<div class="overlay"><div class="modal ${cls}">${html}</div></div>`;
+  const ov = root.firstElementChild;
+  ov.addEventListener("mousedown", e => { if(e.target===ov) closeModal(); });
+  ov.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeModal);
+  return ov.querySelector(".modal");
+}
+function closeModal(){
+  if(modalCleanup){ modalCleanup(); modalCleanup=null; }
+  const ov = $("#modalRoot .overlay"); if(!ov) return;
+  ov.style.transition="opacity .25s"; ov.style.opacity="0";
+  setTimeout(()=>{ if($("#modalRoot .overlay")===ov) $("#modalRoot").innerHTML=""; },250);
+}
+document.addEventListener("keydown", e => { if(e.key==="Escape") closeModal(); });
+function confirmBox(title, text, okLabel="Ya, lanjutkan", danger=false){
+  return new Promise(resolve => {
+    const m = openModal(`
+      <div class="modal-head"><div><h3>${esc(title)}</h3></div><button class="x" data-close>✕</button></div>
+      <div class="modal-body"><p style="color:var(--muted);line-height:1.6;margin-bottom:18px">${text}</p>
+        <div class="row2"><button class="btn btn-ghost" id="cNo" type="button">Batal</button>
+        <button class="btn btn-primary" id="cYes" type="button" ${danger?'style="background:var(--rust)"':""}>${esc(okLabel)}</button></div></div>`);
+    let done=false; const fin=v=>{ if(done) return; done=true; resolve(v); };
+    modalCleanup = () => fin(false);
+    m.querySelector("#cNo").onclick=()=>closeModal();
+    m.querySelector("#cYes").onclick=()=>{ modalCleanup=null; fin(true); closeModal(); };
+  });
+}
+
+function countUp(el, to, fmt = v=>Math.round(v)){
+  const dur=1100, t0=performance.now();
+  const step = t => { const p=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-p,3); el.textContent = fmt(to*e); if(p<1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+async function copyText(text){
+  try{ await navigator.clipboard.writeText(text); return true; }
+  catch(e){ const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); let ok=false; try{ok=document.execCommand("copy");}catch(_){} ta.remove(); return ok; }
+}
+function confetti(){
+  const c=$("#confetti"), ctx=c.getContext("2d");
+  c.width=innerWidth; c.height=innerHeight;
+  const cols=["#434423","#B0B98A","#DFDABB","#5B5E34","#CDD3AE"];
+  const ps = Array.from({length:140},()=>({x:innerWidth/2,y:innerHeight/2-40,vx:(Math.random()-.5)*16,vy:Math.random()*-15-4,s:Math.random()*8+4,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.floor(Math.random()*cols.length)]}));
+  let f=0;
+  (function loop(){
+    ctx.clearRect(0,0,c.width,c.height);
+    ps.forEach(p=>{p.vy+=.45;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);ctx.restore();});
+    if(++f<170) requestAnimationFrame(loop); else ctx.clearRect(0,0,c.width,c.height);
+  })();
+}
+
+/* =========================================================
+   STATUS BULAN
+   ========================================================= */
+function statusOf(room, payMap, k){
+  if(room.startMonth && k < room.startMonth) return "none";
+  const p = payMap[k];
+  if(p) return p.method==="manual" ? "manual" : "lunas";
+  if(k < CUR) return "telat";
+  if(k === CUR) return "belum";
+  return "next";
+}
+const isPaid = s => s==="lunas" || s==="manual";
+function unpaidKeys(room, payMap){ const out=[]; if(!room.startMonth) return out; for(let k=room.startMonth;k<=CUR;k=addM(k,1)) if(!isPaid(statusOf(room,payMap,k))) out.push(k); return out; }
+function nextBill(room, payMap){ const u=unpaidKeys(room,payMap); if(u.length) return u[0]; let k = room.startMonth && room.startMonth>CUR ? room.startMonth : CUR; while(isPaid(statusOf(room,payMap,k))) k=addM(k,1); return k; }
+function lastPaid(room, payMap){ let last=null; for(let k=room.startMonth||CUR;k<=addM(CUR,24);k=addM(k,1)){ if(isPaid(statusOf(room,payMap,k))) last=k; else if(k>=CUR) break; } return last; }
+/* gabungkan pembayaran per transaksi (satu QRIS bisa beberapa bulan) */
+function buildHistory(payments){
+  const g = new Map();
+  payments.forEach(p => {
+    const key = p.orderId ? "o:"+p.orderId : `m:${p.roomId}:${p.month}`;
+    if(!g.has(key)) g.set(key,{ roomId:p.roomId, orderId:p.orderId, method:p.method, paidAt:p.paidAt, months:[], amount:0 });
+    const x=g.get(key); x.months.push(p.month); x.amount += Number(p.amount||0);
+  });
+  return [...g.values()].map(x=>(x.months.sort(),x)).sort((a,b)=>String(b.paidAt).localeCompare(String(a.paidAt)));
+}
+const BADGE = {
+  lunas:'<span class="badge b-lunas">Lunas</span>',
+  manual:'<span class="badge b-lunas">Lunas · tunai</span>',
+  belum:'<span class="badge b-belum">Belum bayar</span>',
+  telat:'<span class="badge b-telat">Terlambat</span>',
+  next:'<span class="badge b-next">Mendatang</span>',
+  none:'<span class="badge b-none">Belum ngekos</span>',
+};
+
+/* =========================================================
+   NAVIGASI
+   ========================================================= */
+function show(id){ ["#boot","#login","#app"].forEach(s=>$(s).classList.toggle("hidden", s!==id)); }
+function setWho(name, role){
+  $("#whoName").textContent=name; $("#whoRole").textContent=role;
+  $("#whoAvatar").textContent=String(name).trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+}
+function applyConfig(){
+  CUR = CFG.currentMonth;
+  document.querySelectorAll(".kos-name").forEach(e=>e.textContent=CFG.kosName);
+  document.title = `${CFG.kosName} — Pembayaran Kos`;
+  $("#sandboxBar").classList.toggle("hidden", !(CFG.duitkuReady && CFG.duitkuEnv==="sandbox"));
+}
+
+async function boot(){
+  try{
+    CFG = await api("auth?action=config"); applyConfig();
+    const me = await api("auth?action=me");
+    if(me.role==="owner") return openOwner();
+    if(me.role==="tenant") return openTenant();
+    showLogin();
+  }catch(e){
+    $("#boot").innerHTML = `<div><h2>Server belum tersambung</h2><p>${esc(e.message)}</p>
+      <p style="margin-top:12px;font-size:13px">Halaman ini harus dibuka dari alamat website (Vercel) atau dari <code>node server.js</code>, bukan dibuka langsung sebagai file.</p>
+      <button class="btn btn-primary" style="margin-top:18px" onclick="location.reload()">Coba lagi</button></div>`;
+  }
+}
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+function showLogin(){
+  closeModal(); show("#login");
+  let w="";
+  for(let i=0;i<10;i++){ const col=i%5, row=Math.floor(i/5); if(row===1&&col===2) continue;
+    w+=`<rect class="win" fill="#5B5E34" x="${92+col*46}" y="${124+row*44}" width="28" height="26" rx="4" style="animation-delay:${i*.4}s"/>`; }
+  $("#houseWindows").innerHTML=w;
+  setTimeout(()=>$("#lu").focus(), 300);
+}
+$("#pwToggle").onclick = () => { const i=$("#lp"); i.type = i.type==="password"?"text":"password"; $("#pwToggle").textContent = i.type==="password"?"Lihat":"Sembunyi"; };
+bindEnter($("#loginCard"), $("#loginBtn"));
+$("#loginBtn").onclick = () => busy($("#loginBtn"), async () => {
+  const username=$("#lu").value.trim(), password=$("#lp").value;
+  const errEl=$("#loginErr");
+  if(!username || !password){ errEl.textContent="Isi username dan password dulu ya."; return shakeLogin(); }
+  try{
+    const r = await api("auth?action=login",{method:"POST",body:{username,password}});
+    errEl.textContent=""; $("#lp").value="";
+    if(r.role==="owner") openOwner(); else openTenant();
+  }catch(e){ errEl.textContent = e.message; shakeLogin(); }
+});
+function shakeLogin(){ const f=$("#loginCard"); f.classList.remove("shake"); void f.offsetWidth; f.classList.add("shake"); }
+$("#logoutBtn").onclick = async () => { try{ await api("auth?action=logout",{method:"POST"}); }catch(e){} stopTimers(); showLogin(); toast("Kamu sudah keluar","👋"); };
+
+let timers = [];
+function stopTimers(){ timers.forEach(clearInterval); timers=[]; }
+
+/* =========================================================
+   DASHBOARD ANAK KOS
+   ========================================================= */
+let T = null;             // { room, payments, payMap }
+let tenantYear = null;
+
+async function openTenant(){
+  try{
+    const d = await api("tenant");
+    CUR = d.currentMonth;
+    T = { room:d.room, payments:d.payments, payMap:Object.fromEntries(d.payments.map(p=>[p.month,p])) };
+    if(tenantYear===null) tenantYear = parts(CUR).y;
+    show("#app"); renderTenant();
+  }catch(e){ handleErr(e); }
+}
+
+function renderTenant(){
+  const { room, payMap, payments } = T;
+  setWho(room.name, `Kamar ${room.no}`);
+  const unpaid = unpaidKeys(room,payMap);
+  const bill = nextBill(room,payMap);
+  const st = statusOf(room,payMap,bill);
+  const allGood = unpaid.length===0;
+  const due = parts(bill);
+  const history = buildHistory(payments).slice(0,8);
+
+  let months="";
+  for(let m=0;m<12;m++){
+    const k=keyOf(tenantYear,m), s=statusOf(room,payMap,k), click = !isPaid(s) && s!=="none" && k<=addM(CUR,11);
+    months+=`<button type="button" class="mcard reveal ${click?"click":""} ${isPaid(s)?"is-lunas":""} ${k===CUR?"is-now":""}" style="--i:${m}" ${click?`data-pay="${k}"`:"disabled"}>
+      ${k===CUR?'<span class="now-tag">Bulan ini</span>':""}
+      <div class="m">${BULAN_PANJANG[m]}</div><div class="y">${tenantYear}</div>${BADGE[s]}
+      ${click?'<div class="hint">Klik untuk bayar →</div>':""}
+    </button>`;
+  }
+
+  $("#view").innerHTML = `
+  ${room.usingDefaultPassword ? `<div class="notice warn"><span>🔑 Kamu masih memakai <b>password awal</b> dari pemilik kos. Ganti dulu supaya akunmu aman.</span><button class="btn btn-primary btn-sm" type="button" id="goAcc">Ganti sekarang</button></div>`:""}
+  ${!CFG.duitkuReady ? `<div class="notice warn"><span>Pembayaran QRIS belum diaktifkan oleh pemilik kos.</span></div>`:""}
+  <div class="hero reveal">
+    <div style="position:relative;z-index:1">
+      <span class="pill">🏠 Kamar ${room.no}</span>
+      <h2 style="margin-top:14px">Halo, ${esc(room.name)}!</h2>
+      <p style="opacity:.8;margin-top:8px;max-width:44ch;line-height:1.6">${allGood
+        ? "Pembayaranmu sudah beres semua. Terima kasih sudah bayar tepat waktu 🌿"
+        : unpaid.length>1 ? `Ada <b>${unpaid.length} bulan</b> yang belum dibayar. Yuk dilunasi supaya tenang.`
+        : "Tagihan bulan ini sudah keluar. Bayarnya cukup scan QRIS, nanti statusnya langsung tercatat."}</p>
+      <div class="meta">
+        <span class="pill">💳 ${rupiah(room.price)} / bulan</span>
+        <span class="pill">📅 Jatuh tempo tiap tgl ${CFG.dueDay}</span>
+      </div>
+    </div>
+    <div class="status-box">
+      <div class="label">${allGood ? "Tagihan berikutnya" : "Tagihan yang harus dibayar"}</div>
+      <div class="month">${allGood ? labelM(bill) : unpaid.length>1 ? `${shortM(unpaid[0])} – ${shortM(unpaid[unpaid.length-1])}` : labelM(bill)}</div>
+      <div style="margin-bottom:12px">${BADGE[st]}</div>
+      <div class="amount">${rupiah(room.price * (allGood?1:unpaid.length))}</div>
+      ${allGood
+        ? `<button type="button" class="btn btn-ghost btn-block" data-pay="${bill}">Bayar lebih awal</button>`
+        : `<button type="button" class="btn btn-primary btn-pay" data-pay="${unpaid.join(",")}">Bayar Sekarang dengan QRIS</button>`}
+      <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">Jatuh tempo ${CFG.dueDay} ${BULAN_PANJANG[due.m]} ${due.y}</p>
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step reveal" style="--i:2"><div class="num">1</div><div><b>Klik "Bayar"</b><span>Pilih bulan yang mau dibayar. Kode QRIS muncul dengan nominal yang pas.</span></div></div>
+    <div class="step reveal" style="--i:3"><div class="num">2</div><div><b>Scan QRIS</b><span>Pakai m-banking atau e-wallet apa saja: BCA, BRI, GoPay, DANA, OVO, dan lainnya.</span></div></div>
+    <div class="step reveal" style="--i:4"><div class="num">3</div><div><b>Otomatis lunas</b><span>Tidak perlu kirim bukti transfer. Statusnya langsung berubah jadi Lunas.</span></div></div>
+  </div>
+
+  <div class="section-title">
+    <div><h3>Status per bulan</h3><p>Hijau berarti sudah lunas. Bulan yang belum dibayar bisa diklik untuk bayar.</p></div>
+    <div class="year-switch"><button type="button" id="yPrev" aria-label="Tahun sebelumnya">‹</button><span>${tenantYear}</span><button type="button" id="yNext" aria-label="Tahun berikutnya">›</button></div>
+  </div>
+  <div class="months">${months}</div>
+
+  <div class="two-col" style="margin-top:34px">
+    <div class="card reveal" style="--i:2">
+      <h3 style="font-size:22px;margin-bottom:6px">Riwayat pembayaran</h3>
+      <div class="list">${history.length ? history.map(t=>`
+        <div class="li"><div style="display:flex;gap:12px;align-items:center"><div class="ic">${t.method==="qris"?"▦":"💵"}</div>
+          <div><div class="t">${t.months.map(shortM).join(", ")}</div><small>${fmtDate(t.paidAt)} · ${t.method==="qris"?"QRIS":"Dicatat pemilik"}</small></div></div>
+          <b style="color:var(--olive)">${rupiah(t.amount)}</b></div>`).join("") : `<div class="empty">Belum ada pembayaran.</div>`}
+      </div>
+    </div>
+    <div class="card reveal" style="--i:3" id="accCard">
+      <h3 style="font-size:22px;margin-bottom:4px">Akun saya</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Ganti username awal (<b>kamar${room.no}</b>) jadi namamu, lalu ganti password.</p>
+      <div class="field"><label>Nama tampilan</label><input class="input" name="name" value="${esc(room.name)}" maxlength="40"></div>
+      <div class="field"><label>Username untuk login</label><input class="input" name="username" value="${esc(room.username)}" maxlength="24" autocapitalize="none" spellcheck="false"></div>
+      <div class="row2">
+        <div class="field"><label>Password lama</label><input class="input" type="password" name="oldPassword" placeholder="wajib jika ganti" autocomplete="current-password"></div>
+        <div class="field"><label>Password baru</label><input class="input" type="password" name="newPassword" placeholder="min. 6 karakter" autocomplete="new-password"></div>
+      </div>
+      <div class="err" id="accErr"></div>
+      <button class="btn btn-sage btn-block" type="button" id="accSave">Simpan perubahan</button>
+    </div>
+  </div>`;
+
+  $("#view").querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>openPayment(b.dataset.pay.split(",")));
+  $("#yPrev").onclick=()=>{tenantYear--;renderTenant();};
+  $("#yNext").onclick=()=>{tenantYear++;renderTenant();};
+  const goAcc=$("#goAcc"); if(goAcc) goAcc.onclick=()=>{ $("#accCard").scrollIntoView({behavior:"smooth",block:"center"}); setTimeout(()=>$("#accCard [name=oldPassword]").focus(),500); };
+  const accCard=$("#accCard"), accBtn=$("#accSave");
+  bindEnter(accCard, accBtn);
+  accBtn.onclick=()=>busy(accBtn, async()=>{
+    const v=vals(accCard);
+    try{
+      const r = await api("tenant?action=account",{method:"POST",body:v});
+      T.room = r.room; renderTenant(); toast(v.newPassword ? "Akun & password diperbarui" : "Akun diperbarui");
+    }catch(e){ if(e.status===401) return handleErr(e); $("#accErr").textContent=e.message; }
+  });
+}
+
+/* ---------- PEMBAYARAN QRIS ---------- */
+function openPayment(preselect){
+  const { room, payMap } = T;
+  const options=[]; let k = room.startMonth && room.startMonth > addM(CUR,-11) ? room.startMonth : addM(CUR,-11);
+  for(;k<=addM(CUR,5);k=addM(k,1)) options.push(k);
+  const sel = new Set(preselect.filter(k=>!isPaid(statusOf(room,payMap,k)) && statusOf(room,payMap,k)!=="none"));
+  const draw = () => {
+    const m = openModal(`
+      <div class="modal-head"><div><h3>Bayar kos</h3><p>Kamar ${room.no} · ${esc(room.name)}</p></div><button class="x" data-close>✕</button></div>
+      <div class="modal-body">
+        <p style="font-size:13px;font-weight:600;color:var(--olive);margin-bottom:6px">Pilih bulan yang dibayar</p>
+        <div class="month-pick">${options.map(k=>{const s=statusOf(room,payMap,k),paid=isPaid(s);
+          return `<button type="button" class="mp ${sel.has(k)?"on":""}" data-k="${k}" ${paid||s==="none"?"disabled":""}>${shortM(k)}${paid?" ✓":""}</button>`;}).join("")}</div>
+        <div class="total-row"><span>${sel.size} bulan × ${rupiah(room.price)}</span><b>${rupiah(sel.size*room.price)}</b></div>
+        <div class="err" id="payErr"></div>
+        <button type="button" class="btn btn-primary btn-block" id="genQr" ${sel.size?"":"disabled"}>Tampilkan QRIS</button>
+      </div>`);
+    m.querySelectorAll(".mp:not(:disabled)").forEach(b=>b.onclick=()=>{ sel.has(b.dataset.k)?sel.delete(b.dataset.k):sel.add(b.dataset.k); draw(); });
+    const g=m.querySelector("#genQr");
+    g.onclick=()=>busy(g, async()=>{
+      try{ const order = await api("pay?action=create",{method:"POST",body:{months:[...sel].sort()}}); showQr(order); }
+      catch(e){ if(e.status===401) return handleErr(e); m.querySelector("#payErr").textContent=e.message; }
+    });
+  };
+  draw();
+}
+
+function showQr(order){
+  const { room } = T;
+  const waText = `Halo, ini tagihan kos ${room.name} (Kamar ${room.no}) di ${CFG.kosName} untuk ${order.months.map(labelM).join(", ")} sebesar ${rupiah(order.amount)}.`
+    + (order.paymentUrl ? `\nBayar lewat link ini (berlaku 15 menit): ${order.paymentUrl}` : "")
+    + `\nSetelah dibayar, status otomatis jadi LUNAS. Terima kasih 🙏`;
+  const m = openModal(`
+    <div class="modal-head"><div><h3>Scan untuk bayar</h3><p>${order.months.map(shortM).join(", ")}</p></div><button class="x" data-close>✕</button></div>
+    <div class="modal-body" id="payBody">
+      <div class="qris-card">
+        <div class="qris-top"><span class="qris-logo">QRIS</span>${CFG.duitkuEnv==="sandbox"?'<span class="sbx">SANDBOX</span>':""}</div>
+        ${order.qrSvg ? `<div class="qr-box"><div class="qr-fade">${order.qrSvg}</div><div class="scanline"></div></div>`
+          : `<p style="padding:30px 10px;color:var(--muted);font-size:14px">Kode QR tersedia di halaman pembayaran Duitku.</p>`}
+        <div class="qr-merchant">${esc(CFG.kosName)} · Kamar ${room.no}</div>
+        <div class="qr-amount">${rupiah(order.amount)}</div>
+        <div class="timer">⏱ Berlaku <span id="tmr">--:--</span></div>
+      </div>
+      <div class="waiting"><span class="dots"><span></span><span></span><span></span></span> Menunggu pembayaran…</div>
+      <div class="mini-steps">
+        <div><b>1</b>Buka aplikasi m-banking / e-wallet</div>
+        <div><b>2</b>Pilih menu Scan / QRIS lalu arahkan ke kode di atas</div>
+        <div><b>3</b>Pastikan nominal ${rupiah(order.amount)}, lalu konfirmasi</div>
+      </div>
+      <a class="btn btn-ghost btn-block btn-sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(waText)}">📲 Kirim tagihan ke orang tua (WhatsApp)</a>
+      ${order.paymentUrl ? `<a class="pay-link" href="${esc(order.paymentUrl)}" target="_blank" rel="noopener">Buka halaman pembayaran Duitku ↗</a>`:""}
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px">Order ID: ${esc(order.orderId)}</p>
+    </div>`);
+
+  const expires = Date.parse(order.expiresAt);
+  let finished = false;
+  const tick=()=>{ const left=Math.max(0,expires-Date.now()), mm=Math.floor(left/60000), ss=Math.floor(left%60000/1000);
+    const el=$("#tmr"); if(el) el.textContent=`${String(mm).padStart(2,"0")}:${String(ss).padStart(2,"0")}`; };
+  const poll = async () => {
+    if(finished) return;
+    try{
+      const s = await api(`pay?action=status&orderId=${encodeURIComponent(order.orderId)}`);
+      if(s.status==="paid"){ finished=true; return paid(); }
+      if(s.status==="failed"){ finished=true; return failed("Pembayaran dibatalkan atau gagal."); }
+      if(Date.now() > expires + 60000){ finished=true; return failed(`Kode QRIS sudah kedaluwarsa.`); }
+    }catch(e){ if(e.status===401){ finished=true; handleErr(e); } }
+  };
+  const iv1=setInterval(tick,1000), iv2=setInterval(poll,4000); tick();
+  modalCleanup=()=>{ finished=true; clearInterval(iv1); clearInterval(iv2); };
+
+  function failed(msg){
+    clearInterval(iv1); clearInterval(iv2);
+    const b=$("#payBody"); if(!b) return;
+    b.innerHTML=`<div class="success"><h3>${esc(msg)}</h3><p style="color:var(--muted);margin:8px 0 18px">Kalau saldo kamu sudah terpotong, tunggu beberapa menit lalu muat ulang halaman. Statusnya akan menyesuaikan otomatis.</p>
+      <button type="button" class="btn btn-primary btn-block" id="again">Buat QRIS baru</button></div>`;
+    $("#again").onclick=()=>openPayment(order.months);
+  }
+  async function paid(){
+    clearInterval(iv1); clearInterval(iv2);
+    const b=$("#payBody"); if(!b) return;
+    b.innerHTML=`<div class="success">
+      <svg class="check" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/><path d="M30 52 l14 14 l27 -30"/></svg>
+      <h3>Pembayaran berhasil!</h3><p style="color:var(--muted);margin-top:4px">Status sudah otomatis jadi <b style="color:var(--olive)">Lunas</b>.</p>
+      <div class="receipt">
+        <div><span>Kamar</span><b>${room.no} · ${esc(room.name)}</b></div>
+        <div><span>Bulan</span><b>${order.months.map(shortM).join(", ")}</b></div>
+        <div><span>Nominal</span><b>${rupiah(order.amount)}</b></div>
+        <div><span>Metode</span><b>QRIS</b></div>
+        <div><span>Order ID</span><b style="font-size:11px">${esc(order.orderId)}</b></div>
+      </div>
+      <button type="button" class="btn btn-primary btn-block" data-close>Selesai</button></div>`;
+    b.querySelector("[data-close]").onclick=closeModal;
+    confetti();
+    try{ const d = await api("tenant"); T = { room:d.room, payments:d.payments, payMap:Object.fromEntries(d.payments.map(p=>[p.month,p])) }; renderTenant(); }catch(e){}
+  }
+}
+
+/* =========================================================
+   DASHBOARD PEMILIK
+   ========================================================= */
+let O = null;   // { rooms, payments, pay: {roomId: {month: p}}, duitku }
+let ownerTab = "ringkasan", ownerYear = null;
+
+async function loadOwner(){
+  const d = await api("owner");
+  CUR = d.currentMonth;
+  const pay = {}; d.rooms.forEach(r=>pay[r.id]={}); d.payments.forEach(p=>{ (pay[p.roomId] ||= {})[p.month]=p; });
+  O = { rooms:d.rooms, payments:d.payments, pay, duitku:d.duitku };
+  if(ownerYear===null) ownerYear = parts(CUR).y;
+}
+async function openOwner(){
+  try{ await loadOwner(); show("#app"); renderOwner(); }catch(e){ handleErr(e); }
+}
+async function refreshOwner(){ try{ await loadOwner(); renderOwnerBody(); }catch(e){ handleErr(e); } }
+
+function renderOwner(){
+  setWho("Pemilik Kos", "Pemilik kos");
+  $("#view").innerHTML = `
+    ${!O.duitku.ready ? `<div class="notice warn"><span>⚙️ <b>Duitku belum tersambung.</b> Isi DUITKU_MERCHANT_CODE dan DUITKU_API_KEY di Vercel supaya anak kos bisa bayar QRIS. Sementara itu, kamu tetap bisa mencatat pembayaran manual.</span></div>`
+      : O.duitku.env==="sandbox" ? `<div class="notice info"><span>Duitku tersambung dalam <b>mode sandbox</b> (metode ${esc(O.duitku.method)}). Ganti DUITKU_ENV ke <b>production</b> saat sudah siap menerima uang sungguhan.</span></div>`:""}
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap" class="reveal">
+      <div><h2 style="font-size:clamp(28px,3.4vw,38px)">Dashboard pemilik</h2><p style="color:var(--muted);margin-top:4px">Pantau dan ubah status pembayaran semua kamar · ${labelM(CUR)}</p></div>
+      <div class="tabs" id="tabs"><span class="tab-ind"></span>
+        <button type="button" class="tab" data-t="ringkasan">Ringkasan</button>
+        <button type="button" class="tab" data-t="kamar">Kamar & Penghuni</button>
+        <button type="button" class="tab" data-t="riwayat">Riwayat</button>
+      </div>
+    </div>
+    <div id="ownerBody" style="margin-top:22px"></div>`;
+  $("#tabs").querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ownerTab=t.dataset.t;paintTabs();renderOwnerBody();});
+  paintTabs(); renderOwnerBody();
+  stopTimers(); timers.push(setInterval(()=>{ if(!$("#modalRoot .overlay") && !document.hidden && O) refreshOwner(); }, 30000));
+}
+function paintTabs(){
+  const tabs=$("#tabs"); if(!tabs) return;
+  tabs.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.t===ownerTab));
+  const a=tabs.querySelector(".tab.active"), ind=tabs.querySelector(".tab-ind");
+  requestAnimationFrame(()=>{ ind.style.left=a.offsetLeft+"px"; ind.style.width=a.offsetWidth+"px"; });
+}
+addEventListener("resize", paintTabs);
+function renderOwnerBody(){
+  const body=$("#ownerBody"); if(!body) return;
+  if(ownerTab==="ringkasan") return ownerSummary(body);
+  if(ownerTab==="kamar") return ownerRooms(body);
+  return ownerHistory(body);
+}
+
+function ownerSummary(body){
+  const active = O.rooms.filter(r=>r.startMonth && r.startMonth<=CUR);
+  const paidNow = active.filter(r=>isPaid(statusOf(r,O.pay[r.id],CUR)));
+  const income = paidNow.reduce((s,r)=>s+Number(O.pay[r.id][CUR].amount||r.price),0);
+  const arrears = active.reduce((s,r)=>s+unpaidKeys(r,O.pay[r.id]).length*r.price,0);
+  const qrisCount = buildHistory(O.payments).filter(t=>t.method==="qris" && String(t.paidAt).slice(0,7)===CUR).length;
+  const pct = active.length ? paidNow.length/active.length : 0;
+  const C = 2*Math.PI*26;
+
+  let head="", rows="";
+  for(let m=0;m<12;m++){ const k=keyOf(ownerYear,m); head+=`<th class="${k===CUR?"cur":""}">${BULAN[m]}</th>`; }
+  O.rooms.forEach((r,ri)=>{
+    let cells="";
+    for(let m=0;m<12;m++){
+      const k=keyOf(ownerYear,m), s=statusOf(r,O.pay[r.id],k);
+      const sym={lunas:"✓",manual:"✓",belum:"!",telat:"✕",next:"·",none:"–"}[s];
+      const tip={lunas:"Lunas via QRIS",manual:"Lunas (dicatat manual)",belum:"Belum bayar",telat:"Terlambat",next:"Mendatang",none:"Belum ngekos"}[s];
+      cells+=`<td><button type="button" class="cell c-${s}" title="${BULAN_PANJANG[m]} ${ownerYear}: ${tip}" style="animation-delay:${(ri*12+m)*10}ms" data-r="${r.id}" data-k="${k}" ${s==="none"?"disabled":""}>${sym}</button></td>`;
+    }
+    const u = unpaidKeys(r,O.pay[r.id]).length, lp = lastPaid(r,O.pay[r.id]);
+    const note = !r.startMonth || r.startMonth>CUR ? "belum ngekos" : u ? `${u} bln belum bayar` : lp ? `lunas s/d ${shortM(lp)}` : "";
+    rows+=`<tr><td class="room"><b>${r.no}. ${esc(r.name)}</b><small>@${esc(r.username)} · ${note}</small></td>${cells}</tr>`;
+  });
+
+  body.innerHTML = `
+    <div class="stats">
+      <div class="stat dark reveal" style="--i:0"><div class="k">Lunas bulan ini</div><div class="v"><span id="sv1">0</span><span style="font-size:20px;opacity:.6"> / ${active.length}</span></div><div class="d">kamar sudah bayar</div>
+        <svg class="ring" viewBox="0 0 64 64"><circle class="bg" cx="32" cy="32" r="26"/><circle class="fg" id="ringFg" cx="32" cy="32" r="26" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg></div>
+      <div class="stat reveal" style="--i:1"><div class="k">Pemasukan ${BULAN[parts(CUR).m]}</div><div class="v" id="sv2">Rp0</div><div class="d">dari ${rupiah(active.reduce((s,r)=>s+r.price,0))} target</div></div>
+      <div class="stat reveal" style="--i:2"><div class="k">Total tunggakan</div><div class="v" id="sv3" style="color:var(--rust)">Rp0</div><div class="d">${active.filter(r=>unpaidKeys(r,O.pay[r.id]).length).length} kamar belum lunas</div></div>
+      <div class="stat reveal" style="--i:3"><div class="k">Bayar via QRIS</div><div class="v" id="sv4">0</div><div class="d">transaksi otomatis bulan ini</div></div>
+    </div>
+
+    <div class="section-title">
+      <div><h3>Status pembayaran semua kamar</h3><p>Klik kotak untuk mengubah status (misalnya kalau penghuni bayar tunai).</p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div class="year-switch"><button type="button" id="oyPrev">‹</button><span>${ownerYear}</span><button type="button" id="oyNext">›</button></div>
+        <button type="button" class="btn btn-primary btn-sm" id="rangeBtn">✎ Atur rentang bulan</button>
+      </div>
+    </div>
+    <div class="matrix-wrap reveal" style="--i:4"><table class="matrix"><thead><tr><th style="text-align:left;padding-left:18px">Kamar</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="legend">
+      <span><i style="background:var(--sage)"></i>Lunas (QRIS)</span>
+      <span><i style="background:var(--sage-2);outline:2px dashed var(--sage);outline-offset:-3px"></i>Lunas (manual/tunai)</span>
+      <span><i style="background:var(--rust-bg)"></i>Belum bayar bulan ini</span>
+      <span><i style="background:var(--rust)"></i>Terlambat</span>
+      <span><i style="border:1.5px dashed var(--sand)"></i>Mendatang</span>
+    </div>`;
+
+  countUp($("#sv1"), paidNow.length);
+  countUp($("#sv2"), income, v=>rupiah(Math.round(v/1000)*1000));
+  countUp($("#sv3"), arrears, v=>rupiah(Math.round(v/1000)*1000));
+  countUp($("#sv4"), qrisCount);
+  setTimeout(()=>{ const f=$("#ringFg"); if(f) f.style.strokeDashoffset = C*(1-pct); },120);
+
+  $("#oyPrev").onclick=()=>{ownerYear--;ownerSummary(body);};
+  $("#oyNext").onclick=()=>{ownerYear++;ownerSummary(body);};
+  $("#rangeBtn").onclick=()=>openRange();
+  body.querySelectorAll(".cell:not(:disabled)").forEach(c=>c.onclick=()=>openCell(Number(c.dataset.r),c.dataset.k));
+}
+
+async function setMonths(roomIds, from, to, paid){
+  await api("owner?action=setMonths",{method:"POST",body:{roomIds,from,to,paid}});
+}
+
+function openCell(roomId,k){
+  const r=O.rooms.find(x=>x.id===roomId), s=statusOf(r,O.pay[roomId],k), p=O.pay[roomId][k];
+  const m=openModal(`
+    <div class="modal-head"><div><h3>${esc(r.name)}</h3><p>Kamar ${r.no} · ${labelM(k)}</p></div><button class="x" data-close>✕</button></div>
+    <div class="modal-body">
+      <div style="margin-bottom:14px">${BADGE[s]}</div>
+      ${p?`<div class="receipt"><div><span>Metode</span><b>${p.method==="qris"?"QRIS (otomatis)":"Manual / tunai"}</b></div><div><span>Dicatat</span><b>${fmtDate(p.paidAt)}</b></div>${p.orderId?`<div><span>Order ID</span><b style="font-size:11px">${esc(p.orderId)}</b></div>`:""}</div>`
+        :`<p style="color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.6">Belum ada pembayaran untuk bulan ini. Kalau penghuni sudah bayar tunai atau transfer langsung, tandai lunas secara manual.</p>`}
+      ${p?`<button type="button" class="btn btn-ghost btn-block" id="cellUnpay">Batalkan, tandai belum bayar</button>`
+         :`<button type="button" class="btn btn-primary btn-block" id="cellPay">Tandai lunas (tunai/manual)</button>`}
+    </div>`);
+  const pay=m.querySelector("#cellPay"), un=m.querySelector("#cellUnpay");
+  if(pay) pay.onclick=()=>busy(pay, async()=>{ try{ await setMonths([roomId],k,k,true); closeModal(); await refreshOwner(); toast(`${r.name} · ${shortM(k)} ditandai lunas`); }catch(e){ handleErr(e); } });
+  if(un) un.onclick=async()=>{
+    if(p.method==="qris"){
+      const ok = await confirmBox("Batalkan pembayaran QRIS?", `Pembayaran ${shortM(k)} kamar ${r.no} masuk lewat QRIS dan uangnya sudah diterima Duitku. Yakin mau ditandai belum bayar?`, "Ya, batalkan", true);
+      if(!ok) return;
+    }
+    try{ await setMonths([roomId],k,k,false); closeModal(); await refreshOwner(); toast(`${shortM(k)} ditandai belum bayar`,"↺"); }catch(e){ handleErr(e); }
+  };
+}
+
+function openRange(presetRoom){
+  const m=openModal(`
+    <div class="modal-head"><div><h3>Atur rentang bulan</h3><p>Contoh: kamar 3 sudah bayar dari Januari sampai Juni</p></div><button class="x" data-close>✕</button></div>
+    <div class="modal-body" id="rangeForm">
+      <div class="field"><label>Kamar</label><select class="input" name="room">${O.rooms.map(r=>`<option value="${r.id}" ${presetRoom===r.id?"selected":""}>Kamar ${r.no} — ${esc(r.name)}</option>`).join("")}<option value="all">Semua kamar</option></select></div>
+      <div class="row2">
+        <div class="field"><label>Dari bulan</label><input class="input" type="month" name="from" value="${keyOf(parts(CUR).y,0)}"></div>
+        <div class="field"><label>Sampai bulan</label><input class="input" type="month" name="to" value="${CUR}"></div>
+      </div>
+      <div class="field"><label>Ubah menjadi</label><div class="seg">
+        <input type="radio" name="st" id="st1" value="1" checked><label for="st1">✓ Sudah bayar</label>
+        <input type="radio" name="st" id="st0" value="0"><label for="st0">✕ Belum bayar</label></div></div>
+      <div class="err" id="rangeErr"></div>
+      <button class="btn btn-primary btn-block" type="button" id="rangeApply">Terapkan</button>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">Bulan sebelum penghuni mulai ngekos akan dilewati.</p>
+    </div>`, "wide");
+  const f=m.querySelector("#rangeForm"), b=m.querySelector("#rangeApply");
+  bindEnter(f,b);
+  b.onclick=()=>busy(b, async()=>{
+    const v=vals(f);
+    if(!v.from||!v.to||v.from>v.to) return $("#rangeErr").textContent="Bulan awal harus sebelum (atau sama dengan) bulan akhir.";
+    const ids = v.room==="all" ? O.rooms.map(r=>r.id) : [Number(v.room)];
+    if(v.st==="0"){
+      const ok = await confirmBox("Tandai belum bayar?", `Semua catatan pembayaran ${shortM(v.from)} – ${shortM(v.to)} untuk ${v.room==="all"?"semua kamar":"kamar ini"} akan dihapus, termasuk yang masuk lewat QRIS.`, "Ya, hapus", true);
+      if(!ok) return openRange(presetRoom);
+    }
+    try{ await setMonths(ids, v.from, v.to, v.st==="1"); closeModal(); await refreshOwner(); toast(`${shortM(v.from)} – ${shortM(v.to)} diperbarui`); }
+    catch(e){ if(e.status===401) return handleErr(e); const el=$("#rangeErr"); if(el) el.textContent=e.message; else toast(e.message,"⚠️"); }
+  });
+}
+
+function ownerRooms(body){
+  body.innerHTML = `<div class="rooms">${O.rooms.map((r,i)=>{
+    const pm=O.pay[r.id], s=statusOf(r,pm,CUR), unpaid=unpaidKeys(r,pm).length;
+    let total=0; if(r.startMonth && r.startMonth<=CUR) for(let k=r.startMonth;k<=CUR;k=addM(k,1)) total++;
+    const pct = total ? Math.round((total-unpaid)/total*100) : 0;
+    return `<div class="room-card reveal" style="--i:${i}">
+      <div class="top"><span class="room-no">KAMAR ${r.no}</span>${BADGE[s]}</div>
+      <h4>${esc(r.name)}</h4><div class="u">@${esc(r.username)}${r.startMonth?` · sejak ${shortM(r.startMonth)}`:""}${r.usingDefaultPassword?" · 🔑 password awal":""}</div>
+      <div class="price">${rupiah(r.price)} / bulan</div>
+      <div class="progress"><div data-w="${pct}"></div></div>
+      <div class="prog-label">${total?`${pct}% bulan lunas`:"belum ada tagihan"}${unpaid?` · <b style="color:var(--rust)">${unpaid} bln tertunggak</b>`:""}</div>
+      <div class="acts"><button type="button" class="btn btn-sage btn-sm" style="flex:1" data-edit="${r.id}">Edit</button><button type="button" class="btn btn-ghost btn-sm" data-range="${r.id}">Atur bayar</button></div>
+    </div>`;}).join("")}</div>`;
+  setTimeout(()=>body.querySelectorAll(".progress div").forEach(d=>d.style.width=d.dataset.w+"%"),120);
+  body.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openEditRoom(Number(b.dataset.edit)));
+  body.querySelectorAll("[data-range]").forEach(b=>b.onclick=()=>openRange(Number(b.dataset.range)));
+}
+
+function openEditRoom(id){
+  const r=O.rooms.find(x=>x.id===id);
+  const m=openModal(`
+    <div class="modal-head"><div><h3>Edit Kamar ${r.no}</h3><p>Ubah data penghuni, harga, atau reset password</p></div><button class="x" data-close>✕</button></div>
+    <div class="modal-body" id="editForm">
+      <div class="field"><label>Nama penghuni</label><input class="input" name="name" value="${esc(r.name)}" maxlength="40"></div>
+      <div class="row2">
+        <div class="field"><label>Username</label><input class="input" name="username" value="${esc(r.username)}" maxlength="24" autocapitalize="none" spellcheck="false"></div>
+        <div class="field"><label>Harga / bulan</label><input class="input" type="number" name="price" value="${r.price}" min="10000" step="10000"></div>
+      </div>
+      <div class="field"><label>Mulai ngekos</label><input class="input" type="month" name="startMonth" value="${r.startMonth||CUR}"></div>
+      <div class="err" id="editErr"></div>
+      <button class="btn btn-primary btn-block" type="button" id="editSave">Simpan</button>
+      <div class="row2" style="margin-top:10px">
+        <button type="button" class="btn btn-ghost btn-sm" id="resetPw">🔑 Reset password</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="newTenant">🔄 Ganti penghuni</button>
+      </div>
+    </div>`,"wide");
+  const f=m.querySelector("#editForm"), save=m.querySelector("#editSave");
+  bindEnter(f,save);
+  save.onclick=()=>busy(save, async()=>{
+    const v=vals(f);
+    try{ await api("owner?action=updateRoom",{method:"POST",body:{roomId:id,name:v.name,username:v.username,price:Number(v.price),startMonth:v.startMonth}}); closeModal(); await refreshOwner(); toast(`Kamar ${r.no} disimpan`); }
+    catch(e){ if(e.status===401) return handleErr(e); $("#editErr").textContent=e.message; }
+  });
+  m.querySelector("#resetPw").onclick=async()=>{
+    if(!await confirmBox(`Reset password kamar ${r.no}?`, "Password kembali ke <b>password awal</b> (yang kamu atur di DEFAULT_ROOM_PASSWORD) dan penghuni otomatis keluar dari semua perangkat.", "Reset password")) return openEditRoom(id);
+    try{ await api("owner?action=resetPassword",{method:"POST",body:{roomId:id}}); await refreshOwner(); toast(`Password kamar ${r.no} direset ke password awal`,"🔑"); }catch(e){ handleErr(e); }
+  };
+  m.querySelector("#newTenant").onclick=async()=>{
+    if(!await confirmBox(`Ganti penghuni kamar ${r.no}?`, `Akun kembali ke <b>kamar${r.no}</b> dengan password awal, dan tagihan mulai dari ${labelM(CUR)}. Riwayat pembayaran lama tetap tersimpan.`, "Ya, ganti penghuni", true)) return openEditRoom(id);
+    try{ await api("owner?action=newTenant",{method:"POST",body:{roomId:id}}); await refreshOwner(); toast(`Kamar ${r.no} siap untuk penghuni baru`,"🔄"); }catch(e){ handleErr(e); }
+  };
+}
+
+function ownerHistory(body){
+  const list=buildHistory(O.payments).slice(0,100);
+  body.innerHTML=`<div class="card reveal" style="padding:8px 8px 4px;overflow-x:auto">
+    <table class="tx"><thead><tr><th>Waktu</th><th>Kamar</th><th>Bulan</th><th>Metode</th><th style="text-align:right">Nominal</th></tr></thead><tbody>
+    ${list.map((t,i)=>{const r=O.rooms.find(x=>x.id===t.roomId);return `<tr style="animation-delay:${Math.min(i,20)*35}ms">
+      <td>${fmtDate(t.paidAt)}</td><td><b>${r?r.no+". "+esc(r.name):"-"}</b></td><td>${t.months.map(shortM).join(", ")}</td>
+      <td>${t.method==="qris"?'<span class="badge b-lunas">QRIS</span>':'<span class="badge b-next">Manual</span>'}</td>
+      <td style="text-align:right;font-weight:700;color:var(--olive)">${rupiah(t.amount)}</td></tr>`;}).join("")}
+    </tbody></table>${list.length?"":'<div class="empty">Belum ada transaksi.</div>'}</div>`;
+}
+
+boot();
+</script>
+</body>
+</html>

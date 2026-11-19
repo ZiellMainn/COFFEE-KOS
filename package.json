@@ -1,0 +1,12 @@
+{
+  "name": "kosanku",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Website manajemen kos + pembayaran QRIS Duitku",
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
