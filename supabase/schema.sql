@@ -9,6 +9,7 @@ create table if not exists rooms (
   password_hash text,                       -- kosong = masih pakai DEFAULT_ROOM_PASSWORD
   price         int  not null default 500000,
   start_month   text,                       -- format YYYY-MM (mulai ngekos)
+  start_date    date,                       -- tanggal persis mulai ngekos
   token_version int  not null default 0     -- naik saat password diganti/reset → sesi lama keluar
 );
 create unique index if not exists rooms_username_lower on rooms (lower(username));
@@ -38,6 +39,9 @@ create table if not exists payments (
   paid_at  timestamptz not null default now(),
   primary key (room_id, month)
 );
+
+-- Untuk database lama: tambahkan kolom tanggal mulai (aman dijalankan berulang)
+alter table rooms add column if not exists start_date date;
 
 -- 10 kamar awal: username kamar1 … kamar10, harga Rp500.000, mulai bulan ini
 insert into rooms (id, name, username, price, start_month)

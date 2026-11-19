@@ -1,9 +1,9 @@
 // /api/owner (khusus pemilik kos)
 //   GET                         → semua kamar + semua pembayaran
 //   POST ?action=setMonths      {roomIds, from, to, paid}
-//   POST ?action=updateRoom     {roomId, name, username, price, startMonth}
+//   POST ?action=updateRoom     {roomId, name, username, price, startDate}
 //   POST ?action=resetPassword  {roomId}
-//   POST ?action=newTenant      {roomId}
+//   POST ?action=newTenant      {roomId, name, startDate, clearFrom}
 const { handler, readBody, query, send, HttpError } = require("../lib/http");
 const auth = require("../lib/auth");
 const db = require("../lib/db");
@@ -12,6 +12,17 @@ const { publicRoom, publicPayment } = require("../lib/billing");
 const { currentMonth, isMonth, range } = require("../lib/months");
 
 const USERNAME_RE = /^[a-zA-Z0-9._]{3,24}$/;
+const isDate = s => typeof s === "string" && /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(s) && !isNaN(Date.parse(s));
+
+/* Simpan perubahan kamar. Kalau kolom start_date belum ada di Supabase, beri petunjuk yang jelas. */
+async function saveRoom(id, patch) {
+  try { return await db.updateRoom(id, patch); }
+  catch (e) {
+    if (e instanceof db.DuplicateError) throw e;
+    if (/start_date/.test(String(e.message))) throw new HttpError(500, "Database perlu diperbarui sekali: buka Supabase → SQL Editor, lalu jalankan isi file supabase/migration-01-tanggal-mulai.sql.");
+    throw e;
+  }
+}
 
 module.exports = handler(async (req, res) => {
   auth.requireOwner(req);
@@ -59,8 +70,9 @@ module.exports = handler(async (req, res) => {
     if (!USERNAME_RE.test(username)) throw new HttpError(400, "Username 3–24 karakter: huruf, angka, titik, atau garis bawah.");
     if (username.toLowerCase() === auth.ownerCreds().username) throw new HttpError(400, "Username itu tidak bisa dipakai.");
     if (!Number.isInteger(price) || price < 10000 || price > 100000000) throw new HttpError(400, "Harga tidak valid.");
-    if (!isMonth(b.startMonth)) throw new HttpError(400, "Bulan mulai tidak valid.");
-    try { await db.updateRoom(r.id, { name, username, price, start_month: b.startMonth }); }
+    const startDate = b.startDate || (isMonth(b.startMonth) ? b.startMonth + "-01" : null);
+    if (!isDate(startDate)) throw new HttpError(400, "Tanggal mulai ngekos belum diisi dengan benar.");
+    try { await saveRoom(r.id, { name, username, price, start_month: startDate.slice(0, 7), start_date: startDate }); }
     catch (e) { if (e instanceof db.DuplicateError) throw new HttpError(400, "Username sudah dipakai kamar lain."); throw e; }
     return send(res, 200, { ok: true });
   }
@@ -73,8 +85,14 @@ module.exports = handler(async (req, res) => {
 
   if (action === "newTenant") {
     const r = roomById(b.roomId);
+    const name = String(b.name || "").trim() || `Kamar ${r.id}`;
+    if (name.length > 40) throw new HttpError(400, "Nama maksimal 40 karakter.");
+    const startDate = isDate(b.startDate) ? b.startDate : null;
+    const startMonth = startDate ? startDate.slice(0, 7) : currentMonth();
     try {
-      await db.updateRoom(r.id, { name: `Kamar ${r.id}`, username: `kamar${r.id}`, password_hash: null, start_month: currentMonth(), token_version: r.token_version + 1 });
+      await saveRoom(r.id, { name, username: `kamar${r.id}`, password_hash: null, start_month: startMonth, start_date: startDate, token_version: r.token_version + 1 });
+      // Kalau penghuni lama sudah bayar di muka, catatan bulan setelah penghuni baru masuk bisa dihapus.
+      if (b.clearFrom) await db.deletePayments([r.id], startMonth, "9999-12");
     } catch (e) { if (e instanceof db.DuplicateError) throw new HttpError(400, `Username kamar${r.id} sedang dipakai kamar lain. Ganti dulu username kamar itu.`); throw e; }
     return send(res, 200, { ok: true });
   }
