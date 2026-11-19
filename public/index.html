@@ -38,7 +38,7 @@
   --ease:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 h1,h2,h3,.serif{font-family:Fraunces,Georgia,serif;letter-spacing:-.01em}
 button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
@@ -335,6 +335,240 @@ a.btn{text-decoration:none}
 .btn[disabled]{opacity:.55;pointer-events:none}
 .btn .spinner{width:18px;height:18px;border-width:3px;margin:0}
 
+/* =========================================================
+   BERANDA PUBLIK (landing page)
+   ========================================================= */
+#home{overflow-x:clip}
+.lp-wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+.lp-nav{position:fixed;top:0;left:0;right:0;z-index:30;transition:background .35s,box-shadow .35s,padding .35s;padding:18px 0}
+.lp-nav.scrolled{background:rgba(245,242,226,.86);backdrop-filter:blur(14px);box-shadow:0 1px 0 rgba(223,218,187,.9);padding:10px 0}
+.lp-nav .lp-wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.lp-nav .brand{color:var(--olive)}
+.lp-nav .brand-mark{background:var(--olive);color:var(--sage)}
+.lp-links{display:flex;gap:4px}
+.lp-links a{padding:9px 14px;border-radius:12px;font-size:14px;font-weight:600;color:var(--olive);text-decoration:none;transition:background .2s}
+.lp-links a:hover{background:rgba(223,218,187,.7)}
+.lp-nav .btn{padding:11px 20px}
+
+/* hero */
+.lp-hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:120px 0 70px}
+.lp-hero .lp-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;pointer-events:none;animation:blobMove 16s ease-in-out infinite}
+.blob.b1{width:520px;height:520px;background:var(--sage);top:-140px;right:-120px}
+.blob.b2{width:380px;height:380px;background:var(--sand);bottom:-80px;left:-120px;animation-delay:-6s}
+@keyframes blobMove{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-40px,30px) scale(1.08)}66%{transform:translate(30px,-20px) scale(.95)}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 14px 7px 8px;border-radius:999px;background:var(--paper);border:1px solid var(--sand);font-size:13px;font-weight:600;color:var(--olive)}
+.eyebrow i{width:22px;height:22px;border-radius:50%;background:var(--olive);color:var(--sage);display:grid;place-items:center;font-style:normal;font-size:11px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#6c9a3c;box-shadow:0 0 0 0 rgba(108,154,60,.6);animation:liveDot 1.8s infinite}
+@keyframes liveDot{0%{box-shadow:0 0 0 0 rgba(108,154,60,.55)}100%{box-shadow:0 0 0 10px rgba(108,154,60,0)}}
+.lp-hero h1{font-size:clamp(42px,6.2vw,82px);line-height:.98;margin:22px 0 20px;color:var(--olive-3)}
+.lp-hero h1 .rot{display:inline-block;position:relative;color:var(--olive);font-style:italic}
+.lp-hero h1 .rot span{display:inline-block;animation:wordIn .6s var(--ease) both}
+.lp-hero h1 .rot::after{content:"";position:absolute;left:0;right:0;bottom:4px;height:14px;background:var(--sage);opacity:.55;z-index:-1;border-radius:6px;transform-origin:left;animation:underline 1s .3s var(--ease) both}
+@keyframes wordIn{from{opacity:0;transform:translateY(40%) rotate(4deg);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes underline{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.lp-hero p.lead{font-size:clamp(16px,1.6vw,19px);line-height:1.65;color:var(--muted);max-width:50ch}
+.lp-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.lp-cta .btn{padding:16px 26px;font-size:16px}
+.btn-arrow span{transition:transform .25s var(--ease)}
+.btn-arrow:hover span{transform:translateX(4px)}
+.trust{display:flex;align-items:center;gap:14px;margin-top:30px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.trust b{color:var(--olive)}
+.avatars{display:flex}
+.avatars span{width:34px;height:34px;border-radius:50%;border:3px solid var(--cream);margin-left:-10px;display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--olive)}
+.avatars span:first-child{margin-left:0}
+
+/* phone mockup */
+.phone-stage{position:relative;display:grid;place-items:center;perspective:1200px}
+.phone{width:290px;height:590px;border-radius:46px;background:#1d1e10;padding:12px;box-shadow:0 50px 90px -30px rgba(46,47,23,.6),inset 0 0 0 2px #3a3b25;position:relative;transform:rotateY(-14deg) rotateX(6deg);transition:transform .6s var(--ease);animation:float 7s ease-in-out infinite}
+.phone-stage:hover .phone{transform:rotateY(0) rotateX(0)}
+.phone::before{content:"";position:absolute;top:22px;left:50%;transform:translateX(-50%);width:90px;height:24px;border-radius:20px;background:#1d1e10;z-index:5}
+.screen{position:absolute;inset:12px;border-radius:36px;overflow:hidden;background:var(--cream)}
+.scr{position:absolute;inset:0;padding:58px 18px 18px;display:flex;flex-direction:column;opacity:0;animation:9s infinite}
+.scr1{animation-name:s1}.scr2{animation-name:s2}.scr3{animation-name:s3}
+@keyframes s1{0%,30%{opacity:1;transform:none}36%,100%{opacity:0;transform:translateX(-30px)}}
+@keyframes s2{0%,32%{opacity:0;transform:translateX(30px)}38%,62%{opacity:1;transform:none}68%,100%{opacity:0;transform:translateX(-30px)}}
+@keyframes s3{0%,64%{opacity:0;transform:scale(.92)}70%,96%{opacity:1;transform:none}100%{opacity:0}}
+.mini-top{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;color:var(--olive);margin-bottom:14px}
+.mini-top .av{width:28px;height:28px;border-radius:50%;background:var(--sage);display:grid;place-items:center;font-size:11px}
+.mini-card{background:var(--olive);color:var(--cream);border-radius:22px;padding:18px}
+.mini-card small{opacity:.7;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.mini-card .big{font-size:28px;font-weight:800;margin:6px 0 2px}
+.mini-badge{display:inline-block;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--rust-bg);color:var(--rust);margin-top:8px}
+.mini-btn{margin-top:16px;background:var(--cream);color:var(--olive);text-align:center;font-weight:700;font-size:13px;padding:12px;border-radius:14px;position:relative;overflow:hidden}
+.mini-btn::after{content:"";position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;background:rgba(67,68,35,.35);transform:translate(-50%,-50%) scale(0);animation:tap 9s infinite}
+@keyframes tap{0%,24%{transform:translate(-50%,-50%) scale(0);opacity:1}30%{transform:translate(-50%,-50%) scale(30);opacity:0}100%{opacity:0}}
+.mini-months{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px}
+.mini-months div{font-size:10px;font-weight:700;text-align:center;padding:8px 0;border-radius:10px;background:var(--sage-2);color:var(--olive)}
+.mini-months div.u{background:var(--rust-bg);color:var(--rust)}
+.mini-qr{background:#fff;border-radius:20px;padding:14px;text-align:center;border:1px solid var(--sand)}
+.mini-qr .qrimg{width:170px;height:170px;margin:8px auto;position:relative;display:grid;grid-template-columns:repeat(13,1fr);gap:1px}
+.mini-qr .qrimg i{background:#1d1e10;border-radius:1px}
+.mini-qr .qrimg i.o{background:transparent}
+.mini-qr .qrimg .sl{position:absolute;left:-4px;right:-4px;height:3px;background:var(--sage);box-shadow:0 0 14px var(--sage);animation:scan 1.6s ease-in-out infinite}
+.mini-qr b{font-size:20px;color:var(--olive)}
+.mini-wait{font-size:11px;color:var(--muted);text-align:center;margin-top:12px}
+.mini-ok{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.mini-ok .ck{width:90px;height:90px;border-radius:50%;background:var(--sage);display:grid;place-items:center;margin-bottom:14px}
+.mini-ok .ck svg path{stroke:var(--olive-3);stroke-width:7;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:80;stroke-dashoffset:80;animation:ckDraw 9s infinite}
+@keyframes ckDraw{0%,68%{stroke-dashoffset:80}76%,100%{stroke-dashoffset:0}}
+.mini-ok h5{font-family:Fraunces,serif;font-size:22px;color:var(--olive-3)}
+.mini-ok p{font-size:12px;color:var(--muted);margin-top:4px}
+.chip-float{position:absolute;background:var(--paper);border:1px solid var(--sand);border-radius:16px;padding:10px 14px;font-size:13px;font-weight:700;color:var(--olive);box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;animation:float 6s ease-in-out infinite;white-space:nowrap}
+.chip-float.c1{top:44%;left:-6%;animation-delay:-2s}
+.chip-float.c2{bottom:16%;right:-6%;animation-delay:-4s}
+.chip-float.c3{bottom:4%;left:4%}
+.chip-float em{font-style:normal;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;background:var(--sage-2)}
+
+/* marquee */
+.marquee{background:var(--olive);color:var(--sand);padding:18px 0;overflow:hidden;transform:rotate(-1.2deg);margin:10px -20px 0;position:relative;z-index:2}
+.marquee-track{display:flex;gap:44px;width:max-content;animation:marq 32s linear infinite;font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase}
+.marquee-track span{display:flex;align-items:center;gap:44px}
+.marquee-track span::after{content:"✦";color:var(--sage)}
+@keyframes marq{to{transform:translateX(-50%)}}
+
+/* section umum */
+.lp-sec{padding:110px 0;position:relative}
+.lp-sec.alt{background:var(--paper)}
+.sec-head{max-width:640px;margin-bottom:48px}
+.sec-head.center{margin-left:auto;margin-right:auto;text-align:center}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--olive-2);display:inline-flex;align-items:center;gap:10px}
+.kicker::before{content:"";width:26px;height:2px;background:var(--sage)}
+.sec-head h2{font-size:clamp(32px,4.2vw,52px);line-height:1.05;margin:14px 0 14px;color:var(--olive-3)}
+.sec-head p{color:var(--muted);font-size:17px;line-height:1.65}
+.sr{opacity:0;transform:translateY(34px);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:calc(var(--d,0) * 90ms)}
+.sr.in{opacity:1;transform:none}
+
+/* stats */
+.stats-lp{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:-50px;position:relative;z-index:3}
+.st{background:var(--paper);border:1px solid var(--sand);border-radius:24px;padding:26px;box-shadow:var(--shadow)}
+.st .n{font-family:Fraunces,serif;font-size:clamp(30px,3.4vw,44px);font-weight:700;color:var(--olive)}
+.st .l{font-size:14px;color:var(--muted);margin-top:4px}
+
+/* fasilitas */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.feat{background:var(--cream);border:1px solid var(--sand);border-radius:26px;padding:28px;position:relative;overflow:hidden;transition:transform .45s var(--ease),box-shadow .45s;transform-style:preserve-3d}
+.feat:hover{box-shadow:var(--shadow-lg)}
+.feat .ico{width:56px;height:56px;border-radius:18px;background:var(--olive);color:var(--sage);display:grid;place-items:center;font-size:26px;margin-bottom:18px;transition:transform .45s var(--ease)}
+.feat:hover .ico{transform:rotate(-8deg) scale(1.08)}
+.feat h3{font-size:22px;margin-bottom:8px;color:var(--olive-3)}
+.feat p{color:var(--muted);line-height:1.6;font-size:15px}
+.feat::after{content:"";position:absolute;width:160px;height:160px;border-radius:50%;background:var(--sage);opacity:0;right:-60px;bottom:-60px;transition:opacity .45s,transform .45s;transform:scale(.6)}
+.feat:hover::after{opacity:.25;transform:scale(1)}
+
+/* cara bayar */
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;position:relative}
+.flow-line{position:absolute;top:38px;left:8%;right:8%;height:3px;background:var(--sand);border-radius:3px;overflow:hidden}
+.flow-line i{position:absolute;inset:0;background:var(--olive);transform-origin:left;transform:scaleX(0);transition:transform 1.8s var(--ease)}
+.flow.in .flow-line i{transform:scaleX(1)}
+.fstep{text-align:center;position:relative;z-index:1;padding:0 6px}
+.fstep .dot{width:76px;height:76px;border-radius:24px;margin:0 auto 18px;background:var(--paper);border:2px solid var(--sand);display:grid;place-items:center;font-size:30px;transition:all .6s var(--ease);transition-delay:calc(var(--d) * 350ms)}
+.flow.in .fstep .dot{background:var(--olive);border-color:var(--olive);transform:translateY(-4px)}
+.fstep h4{font-family:Fraunces,serif;font-size:20px;color:var(--olive-3);margin-bottom:6px}
+.fstep p{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* untuk siapa */
+.who-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.who{border-radius:28px;padding:30px;background:var(--cream);border:1px solid var(--sand);transition:transform .4s var(--ease)}
+.who:hover{transform:translateY(-8px)}
+.who.dark{background:var(--olive);color:var(--cream);border-color:var(--olive)}
+.who .tag{display:inline-block;font-size:12px;font-weight:700;padding:6px 12px;border-radius:99px;background:var(--sand);color:var(--olive);margin-bottom:16px}
+.who.dark .tag{background:rgba(245,242,226,.14);color:var(--sage)}
+.who h3{font-size:26px;margin-bottom:14px}
+.who ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.who li{display:flex;gap:10px;font-size:15px;line-height:1.5}
+.who li::before{content:"✓";flex:none;width:22px;height:22px;border-radius:50%;background:var(--sage);color:var(--olive-3);display:grid;place-items:center;font-size:12px;font-weight:800;margin-top:1px}
+
+/* harga */
+.price-wrap{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center}
+.price-card{background:var(--olive);color:var(--cream);border-radius:34px;padding:38px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+.price-card::before{content:"";position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(176,185,138,.35),transparent 70%);top:-100px;right:-80px;animation:float 8s ease-in-out infinite}
+.price-card .pt{font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sage)}
+.price-card .pv{font-family:Fraunces,serif;font-size:clamp(46px,5vw,64px);font-weight:700;margin:10px 0 0;line-height:1}
+.price-card .pv small{font-family:"Plus Jakarta Sans",sans-serif;font-size:16px;font-weight:500;opacity:.7}
+.price-card ul{list-style:none;margin:24px 0 28px;display:flex;flex-direction:column;gap:12px;position:relative}
+.price-card li{display:flex;gap:10px;align-items:center}
+.price-card li::before{content:"✓";width:22px;height:22px;border-radius:50%;background:var(--sage);color:var(--olive-3);display:grid;place-items:center;font-size:12px;font-weight:800;flex:none}
+.price-card .btn{position:relative}
+.avail{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.avail span{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-weight:700;font-size:14px;background:var(--paper);border:1px solid var(--sand);color:var(--olive);transition:transform .3s var(--ease)}
+.avail span:hover{transform:translateY(-4px) rotate(-4deg)}
+
+/* lokasi */
+.loc{display:grid;grid-template-columns:1fr 1.2fr;gap:24px;align-items:stretch}
+.loc-info{background:var(--cream);border:1px solid var(--sand);border-radius:28px;padding:30px;display:flex;flex-direction:column;gap:18px}
+.loc-row{display:flex;gap:14px;align-items:flex-start}
+.loc-row em{font-style:normal;flex:none;width:44px;height:44px;border-radius:14px;background:var(--olive);color:var(--sage);display:grid;place-items:center;font-size:20px}
+.loc-row b{display:block;color:var(--olive-3)}
+.loc-row span{color:var(--muted);font-size:15px;line-height:1.5}
+.map{border-radius:28px;overflow:hidden;border:1px solid var(--sand);min-height:340px;background:var(--sand)}
+.map-art{position:relative;display:block;text-decoration:none;color:inherit}
+.map-art svg{position:absolute;inset:0;width:100%;height:100%}
+.map-art .pin-pulse{transform-origin:300px 200px;animation:pinPulse 2.4s ease-out infinite}
+@keyframes pinPulse{0%{transform:scale(.3);opacity:.8}100%{transform:scale(1.6);opacity:0}}
+.map-art .pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-80%);font-size:46px;animation:pinDrop 2.4s var(--ease) infinite;filter:drop-shadow(0 8px 10px rgba(46,47,23,.3))}
+@keyframes pinDrop{0%,100%{transform:translate(-50%,-80%)}50%{transform:translate(-50%,-100%)}}
+.map-art .map-label{position:absolute;left:18px;right:18px;bottom:18px;background:var(--paper);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow);transition:transform .3s var(--ease)}
+.map-art:hover .map-label{transform:translateY(-4px)}
+.map-art .map-label b{display:block;color:var(--olive-3)}
+.map-art .map-label small{color:var(--muted);font-size:13px}
+.map iframe{width:100%;height:100%;min-height:340px;border:0;filter:sepia(.25) saturate(.9)}
+
+/* faq */
+.faq{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.qa{background:var(--paper);border:1px solid var(--sand);border-radius:20px;overflow:hidden;transition:box-shadow .3s}
+.qa.open{box-shadow:var(--shadow)}
+.qa button{width:100%;text-align:left;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;gap:14px;font-weight:700;font-size:16px;color:var(--olive-3)}
+.qa button i{font-style:normal;flex:none;width:32px;height:32px;border-radius:50%;background:var(--sand);display:grid;place-items:center;transition:transform .4s var(--ease),background .3s;font-size:18px}
+.qa.open button i{transform:rotate(45deg);background:var(--olive);color:var(--cream)}
+.qa .ans{display:grid;grid-template-rows:0fr;transition:grid-template-rows .45s var(--ease)}
+.qa.open .ans{grid-template-rows:1fr}
+.qa .ans>div{overflow:hidden}
+.qa .ans p{padding:0 22px 20px;color:var(--muted);line-height:1.7}
+
+/* cta akhir & footer */
+.final{background:var(--olive);color:var(--cream);border-radius:40px;padding:70px 40px;text-align:center;position:relative;overflow:hidden}
+.final h2{font-size:clamp(34px,4.6vw,58px);line-height:1.05;margin-bottom:16px}
+.final p{opacity:.8;max-width:52ch;margin:0 auto 30px;line-height:1.6}
+.final .lp-cta{justify-content:center}
+.final .ring-deco{position:absolute;border:2px solid rgba(176,185,138,.25);border-radius:50%;animation:spin 40s linear infinite}
+.final .ring-deco.r1{width:500px;height:500px;top:-250px;left:-150px;border-style:dashed}
+.final .ring-deco.r2{width:380px;height:380px;bottom:-200px;right:-100px;animation-direction:reverse}
+.lp-foot{padding:46px 0 34px;font-size:14px;color:var(--muted);text-align:left}
+.lp-foot .lp-wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+.lp-foot a,.lp-foot button{color:var(--olive);font-weight:600;text-decoration:none;font-size:14px}
+.lp-foot nav{display:flex;gap:18px;flex-wrap:wrap}
+.back-home{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--muted);text-decoration:none;margin-bottom:18px;transition:color .2s,transform .2s}
+.back-home:hover{color:var(--olive);transform:translateX(-3px)}
+.is-standalone .web-only{display:none!important}
+.legal h4{font-family:Fraunces,serif;font-size:18px;color:var(--olive-3);margin:16px 0 6px}
+.legal p,.legal li{font-size:14px;color:var(--muted);line-height:1.7}
+.legal ul{padding-left:18px}
+.wa-float{position:fixed;right:20px;bottom:20px;z-index:25;width:58px;height:58px;border-radius:50%;background:var(--olive);color:var(--cream);display:grid;place-items:center;box-shadow:var(--shadow-lg);animation:pulseRing 2.4s infinite;text-decoration:none;font-size:26px;transition:transform .25s var(--ease)}
+.wa-float:hover{transform:scale(1.08)}
+
+@media (max-width:960px){
+  .lp-links{display:none}
+  .lp-hero .lp-wrap{grid-template-columns:1fr;text-align:left}
+  .phone-stage{margin-top:20px}
+  .stats-lp{grid-template-columns:1fr 1fr;margin-top:10px}
+  .feat-grid,.who-grid{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr 1fr;row-gap:34px}
+  .flow-line{display:none}
+  .price-wrap,.loc{grid-template-columns:1fr}
+  .lp-sec{padding:80px 0}
+}
+@media (max-width:520px){
+  .lp-wrap{padding:0 18px}
+  .phone{width:250px;height:510px;transform:none}
+  .mini-qr .qrimg{width:140px;height:140px}
+  .chip-float.c1{left:-2%}.chip-float.c2{right:-2%}
+  .flow{grid-template-columns:1fr}
+  .final{padding:54px 22px;border-radius:30px}
+  .lp-nav .btn{padding:10px 16px}
+}
+@media (prefers-reduced-motion:reduce){.sr{opacity:1;transform:none}.scr2,.scr3{display:none}.scr1{opacity:1}}
+
 /* ---------- pasang aplikasi (PWA) ---------- */
 .install-btn{display:inline-flex;align-items:center;gap:6px}
 .is-standalone .install-only{display:none!important}
@@ -356,6 +590,9 @@ a.btn{text-decoration:none}
 
 <!-- ======================= MEMUAT ======================= -->
 <section id="boot" class="boot"><div><div class="spinner"></div><p>Memuat…</p></div></section>
+
+<!-- ======================= BERANDA (diisi oleh JavaScript) ======================= -->
+<section id="home" class="hidden"></section>
 
 <!-- ======================= LOGIN ======================= -->
 <section id="login" class="hidden">
@@ -383,6 +620,7 @@ a.btn{text-decoration:none}
 
   <div class="login-form-wrap">
     <div class="login-card" id="loginCard">
+      <a class="back-home web-only" href="#">← Kembali ke beranda</a>
       <h2 class="reveal">Selamat datang 👋</h2>
       <p class="sub reveal" style="--i:1">Masuk pakai username dan password dari pemilik kos.</p>
       <div class="field reveal" style="--i:2">
@@ -586,7 +824,11 @@ const BADGE = {
 /* =========================================================
    NAVIGASI
    ========================================================= */
-function show(id){ ["#boot","#login","#app"].forEach(s=>$(s).classList.toggle("hidden", s!==id)); }
+function show(id){
+  if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  ["#boot","#home","#login","#app"].forEach(s=>$(s).classList.toggle("hidden", s!==id));
+  window.scrollTo(0,0);
+}
 function setWho(name, role){
   $("#whoName").textContent=name; $("#whoRole").textContent=role;
   $("#whoAvatar").textContent=String(name).trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
@@ -604,7 +846,7 @@ async function boot(){
     const me = await api("auth?action=me");
     if(me.role==="owner") return openOwner();
     if(me.role==="tenant") return openTenant();
-    showLogin();
+    publicRoute();
   }catch(e){
     $("#boot").innerHTML = `<div><h2>Server belum tersambung</h2><p>${esc(e.message)}</p>
       <p style="margin-top:12px;font-size:13px">Halaman ini harus dibuka dari alamat website (Vercel) atau dari <code>node server.js</code>, bukan dibuka langsung sebagai file.</p>
@@ -615,13 +857,29 @@ async function boot(){
 /* =========================================================
    LOGIN
    ========================================================= */
+/* Pengunjung yang belum login: beranda (#) atau halaman masuk (#masuk).
+   Kalau dibuka dari aplikasi yang terpasang di HP, langsung ke halaman masuk. */
+let homeRendered = false;
+function publicRoute(){
+  if(location.hash === "#masuk" || isStandalone()) showLogin(); else showHome();
+}
+function showHome(){
+  closeModal();
+  if(!homeRendered){ renderHome(); homeRendered = true; }
+  show("#home");
+}
+addEventListener("hashchange", () => {
+  if(!$("#app").classList.contains("hidden") || !$("#boot").classList.contains("hidden")) return;
+  publicRoute();
+});
 function showLogin(){
   closeModal(); show("#login");
+  if(location.hash !== "#masuk" && !isStandalone()) history.replaceState(null, "", "#masuk");
   let w="";
   for(let i=0;i<10;i++){ const col=i%5, row=Math.floor(i/5); if(row===1&&col===2) continue;
     w+=`<rect class="win" fill="#5B5E34" x="${92+col*46}" y="${124+row*44}" width="28" height="26" rx="4" style="animation-delay:${i*.4}s"/>`; }
   $("#houseWindows").innerHTML=w;
-  setTimeout(()=>$("#lu").focus(), 300);
+  if(matchMedia("(hover: hover) and (pointer: fine)").matches) setTimeout(()=>$("#lu").focus({preventScroll:true}), 300);
 }
 $("#pwToggle").onclick = () => { const i=$("#lp"); i.type = i.type==="password"?"text":"password"; $("#pwToggle").textContent = i.type==="password"?"Lihat":"Sembunyi"; };
 bindEnter($("#loginCard"), $("#loginBtn"));
@@ -632,6 +890,7 @@ $("#loginBtn").onclick = () => busy($("#loginBtn"), async () => {
   try{
     const r = await api("auth?action=login",{method:"POST",body:{username,password}});
     errEl.textContent=""; $("#lp").value="";
+    history.replaceState(null, "", location.pathname);
     if(r.role==="owner") openOwner(); else openTenant();
   }catch(e){ errEl.textContent = e.message; shakeLogin(); }
 });
@@ -1085,6 +1344,265 @@ function ownerHistory(body){
 }
 
 /* =========================================================
+   ✏️ INFO KOS UNTUK BERANDA — UBAH SESUAI KOS KAMU
+   (Nama kos & tanggal jatuh tempo diambil otomatis dari pengaturan Vercel)
+   ========================================================= */
+const KOS_INFO = {
+  alamat: "",                 // (opsional) alamat tertulis, contoh: "Jl. Mawar No. 12, Klojen, Malang"
+  mapsUrl: "https://maps.app.goo.gl/WrMXCDc4yEUeMANAA",   // link Google Maps kos
+  mapsQuery: "",              // (opsional) isi alamat/koordinat supaya peta tampil langsung di halaman
+  whatsapp: "6285100702071",  // nomor pemilik, format 62xxxxxxxxxx
+  email: "",                  // (opsional) email pemilik kos
+  jamKontak: "Chat WhatsApp",
+  khusus: "Wanita",           // kos khusus wanita
+  keunggulan: "Dekat pusat kota", // nilai plus utama
+  harga: 500000,
+  jumlahKamar: 10,
+  fasilitas: [
+    { ico:"👩", judul:"Khusus wanita", teks:"Seluruh penghuni wanita, jadi suasananya lebih nyaman dan tenang." },
+    { ico:"📍", judul:"Dekat pusat kota", teks:"Lokasi strategis. Ke kampus, kantor, tempat makan, dan belanja jadi dekat." },
+    { ico:"📶", judul:"Wi-Fi", teks:"Internet untuk kuliah, kerja, dan hiburan." },
+    { ico:"🚿", judul:"Kamar mandi luar", teks:"Kamar mandi bersama di luar kamar." },
+    { ico:"📱", judul:"Bayar via QRIS", teks:"Bayar dari HP, status lunas tercatat otomatis." },
+    { ico:"💬", judul:"Pemilik mudah dihubungi", teks:"Ada pertanyaan? Langsung chat pemilik kos lewat WhatsApp." },
+  ],
+  termasuk: ["Wi-Fi", "Kamar mandi luar (bersama)", "Lokasi dekat pusat kota", "Bayar QRIS dari semua bank & e-wallet"],
+};
+
+/* =========================================================
+   BERANDA
+   ========================================================= */
+let homeObs = null;
+function waLink(text){ return KOS_INFO.whatsapp ? `https://wa.me/${KOS_INFO.whatsapp}?text=${encodeURIComponent(text)}` : null; }
+
+function renderHome(){
+  const name = esc(CFG.kosName);
+  const harga = rupiah(KOS_INFO.harga);
+  const hargaRb = (KOS_INFO.harga/1000).toLocaleString("id-ID")+"rb";
+  const waAsk = waLink(`Halo, saya ingin tanya kamar di ${CFG.kosName}. Apakah masih ada kamar kosong?`);
+  // pola QR dekoratif untuk mockup
+  let qr=""; const pat=[1,1,1,1,1,0,1,0,1,1,1,1,1,1,0,0,0,1,0,0,1,0,1,0,0,0,1,1,0,1,0,1,1,0,1,1,0,1,0,1,1,0,1,0,1,0,1,1,0,1,1,0,1,1,1,0,0,0,0,1,1,0,0,0,1,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,0,1,1,0,1,0,1,0,0,1,1,1,0,0,1,0,1,1,0,1,1,0,1,0,0,0,1,1,1,0,1,0,1,0,1,1,0,0,1,1,1,1,1,0,1,0,1,0,1,1,1,0,0,0,0,0,1,1,0,1,1,1,0,0,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,1,1,0];
+  for(let i=0;i<169;i++) qr+=`<i class="${pat[i%pat.length]?"":"o"}"></i>`;
+
+  $("#home").innerHTML = `
+  <nav class="lp-nav" id="lpNav"><div class="lp-wrap">
+    <a class="brand" href="#" style="text-decoration:none"><span class="brand-mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg></span>${name}</a>
+    <div class="lp-links"><a href="#fasilitas">Fasilitas</a><a href="#cara-bayar">Cara bayar</a><a href="#harga">Harga</a>${(KOS_INFO.alamat||KOS_INFO.mapsUrl)?'<a href="#lokasi">Lokasi</a>':""}<a href="#faq">FAQ</a></div>
+    <a class="btn btn-primary" href="#masuk">Masuk</a>
+  </div></nav>
+
+  <header class="lp-hero">
+    <div class="blob b1"></div><div class="blob b2"></div>
+    <div class="lp-wrap">
+      <div>
+        <span class="eyebrow reveal"><span class="live-dot"></span>Kos khusus ${esc(KOS_INFO.khusus.toLowerCase())} · ${esc(KOS_INFO.keunggulan.toLowerCase())}</span>
+        <h1 class="reveal" style="--i:1">Ngekos nyaman,<br>bayar tinggal <span class="rot" id="rotWord"><span>scan.</span></span></h1>
+        <p class="lead reveal" style="--i:2">${name} adalah kos khusus ${esc(KOS_INFO.khusus.toLowerCase())} di lokasi strategis, ${esc(KOS_INFO.keunggulan.toLowerCase())}. Sewa bulanan dibayar lewat QRIS dari aplikasi bank atau e-wallet apa pun, dan statusnya langsung tercatat <b>Lunas</b> otomatis.</p>
+        <div class="lp-cta reveal" style="--i:3">
+          <a class="btn btn-primary btn-arrow" href="#masuk">Masuk ke akun <span>→</span></a>
+          ${waAsk ? `<a class="btn btn-ghost" href="${waAsk}" target="_blank" rel="noopener">💬 Tanya kamar kosong</a>` : `<a class="btn btn-ghost" href="#harga">Lihat harga</a>`}
+        </div>
+        <div class="trust reveal" style="--i:4">
+          <div class="avatars"><span style="background:var(--sage)">🏦</span><span style="background:var(--sand)">💳</span><span style="background:var(--sage-2)">📱</span><span style="background:var(--paper)">+</span></div>
+          <span>Bisa dibayar dari <b>semua bank & e-wallet</b> yang mendukung QRIS</span>
+        </div>
+      </div>
+      <div class="phone-stage reveal" style="--i:3">
+        <div class="phone"><div class="screen">
+          <div class="scr scr1">
+            <div class="mini-top"><span>Halo, Kamar 3 👋</span><span class="av">K3</span></div>
+            <div class="mini-card"><small>Tagihan bulan ini</small><div class="big">${harga}</div><span class="mini-badge">Belum bayar</span>
+              <div class="mini-btn">Bayar dengan QRIS</div></div>
+            <div class="mini-months"><div>Jan ✓</div><div>Feb ✓</div><div>Mar ✓</div><div>Apr ✓</div><div>Mei ✓</div><div class="u">Jun !</div></div>
+          </div>
+          <div class="scr scr2">
+            <div class="mini-top"><span>Scan untuk bayar</span><span class="av">⏱</span></div>
+            <div class="mini-qr"><div style="font-weight:800;color:var(--olive);letter-spacing:.06em">QRIS</div><div class="qrimg">${qr}<div class="sl"></div></div><b>${harga}</b></div>
+            <div class="mini-wait">● Menunggu pembayaran…</div>
+          </div>
+          <div class="scr scr3"><div class="mini-ok">
+            <div class="ck"><svg width="54" height="54" viewBox="0 0 100 100"><path d="M26 52 l16 16 l32 -34"/></svg></div>
+            <h5>Pembayaran berhasil!</h5><p>Status otomatis jadi Lunas</p>
+          </div></div>
+        </div></div>
+        <div class="chip-float c1"><em>✓</em>Lunas otomatis</div>
+        <div class="chip-float c2"><em>⚡</em>Tanpa bukti transfer</div>
+        <div class="chip-float c3"><em>👨‍👩‍👧</em>Orang tua bisa bayar</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="marquee"><div class="marquee-track">${[0,1].map(()=>`<span>QRIS</span><span>BCA</span><span>BRI</span><span>Mandiri</span><span>BNI</span><span>GoPay</span><span>DANA</span><span>OVO</span><span>ShopeePay</span><span>LinkAja</span><span>Bank Jago</span><span>SeaBank</span>`).join("")}</div></div>
+
+  <section class="lp-sec" style="padding-top:90px"><div class="lp-wrap">
+    <div class="stats-lp">
+      <div class="st sr" style="--d:0"><div class="n" data-count="${KOS_INFO.jumlahKamar}">0</div><div class="l">kamar tersedia di ${name}</div></div>
+      <div class="st sr" style="--d:1"><div class="n">${hargaRb}</div><div class="l">sewa per bulan</div></div>
+      <div class="st sr" style="--d:2"><div class="n">100%</div><div class="l">penghuni ${esc(KOS_INFO.khusus.toLowerCase())}</div></div>
+      <div class="st sr" style="--d:3"><div class="n">📍</div><div class="l">${esc(KOS_INFO.keunggulan)}</div></div>
+    </div>
+  </div></section>
+
+  <section class="lp-sec alt" id="fasilitas"><div class="lp-wrap">
+    <div class="sec-head sr"><span class="kicker">Fasilitas</span><h2>Semua yang kamu butuhkan untuk ngekos dengan tenang.</h2><p>Kos khusus ${esc(KOS_INFO.khusus.toLowerCase())} di lokasi strategis. Fokus kuliah atau kerja, urusan kos biar beres sendiri.</p></div>
+    <div class="feat-grid">${KOS_INFO.fasilitas.map((f,i)=>`<div class="feat sr tilt" style="--d:${i%3}"><div class="ico">${f.ico}</div><h3>${esc(f.judul)}</h3><p>${esc(f.teks)}</p></div>`).join("")}</div>
+  </div></section>
+
+  <section class="lp-sec" id="cara-bayar"><div class="lp-wrap">
+    <div class="sec-head center sr"><span class="kicker">Cara bayar</span><h2>Empat langkah, kurang dari semenit.</h2><p>Bayarnya semudah jajan pakai QRIS. Tidak perlu transfer manual atau konfirmasi ke pemilik.</p></div>
+    <div class="flow" id="flow">
+      <div class="flow-line"><i></i></div>
+      <div class="fstep" style="--d:0"><div class="dot">🔑</div><h4>Masuk</h4><p>Login pakai username kamarmu dari HP atau laptop.</p></div>
+      <div class="fstep" style="--d:1"><div class="dot">🗓️</div><h4>Pilih bulan</h4><p>Pilih satu atau beberapa bulan sekaligus. Nominalnya muncul otomatis.</p></div>
+      <div class="fstep" style="--d:2"><div class="dot">📷</div><h4>Scan QRIS</h4><p>Scan pakai m-banking atau e-wallet apa saja, lalu konfirmasi.</p></div>
+      <div class="fstep" style="--d:3"><div class="dot">✅</div><h4>Lunas!</h4><p>Status langsung berubah jadi Lunas dan tersimpan di riwayat.</p></div>
+    </div>
+  </div></section>
+
+  <section class="lp-sec alt"><div class="lp-wrap">
+    <div class="sec-head sr"><span class="kicker">Untuk semua</span><h2>Satu website, tiga orang sama-sama tenang.</h2></div>
+    <div class="who-grid">
+      <div class="who sr" style="--d:0"><span class="tag">🎒 Anak kos</span><h3>Bayar dari mana saja</h3><ul><li>Scan QRIS, tidak perlu ke ATM</li><li>Lihat bulan mana yang sudah lunas</li><li>Bisa bayar beberapa bulan sekaligus</li><li>Riwayat pembayaran tersimpan rapi</li></ul></div>
+      <div class="who dark sr" style="--d:1"><span class="tag">👨‍👩‍👧 Orang tua</span><h3>Pasti tahu sudah bayar</h3><ul><li>Terima link tagihan lewat WhatsApp</li><li>Bayar langsung dari aplikasi bank</li><li>Tanda Lunas muncul otomatis</li><li>Tidak perlu foto bukti transfer</li></ul></div>
+      <div class="who sr" style="--d:2"><span class="tag">🏠 Pemilik kos</span><h3>Pantau semua kamar</h3><ul><li>Tabel lunas/belum semua kamar</li><li>Catat pembayaran tunai dengan sekali klik</li><li>Lihat total pemasukan & tunggakan</li><li>Kelola penghuni & reset password</li></ul></div>
+    </div>
+  </div></section>
+
+  <section class="lp-sec" id="harga"><div class="lp-wrap price-wrap">
+    <div class="sr">
+      <div class="sec-head" style="margin-bottom:22px"><span class="kicker">Harga</span><h2>Satu harga, tanpa biaya tersembunyi.</h2><p>Sewa dibayar per bulan, dengan jatuh tempo setiap tanggal ${CFG.dueDay}. Kamu juga bisa bayar beberapa bulan di muka.</p></div>
+      <div style="font-size:13px;font-weight:600;color:var(--muted)">${KOS_INFO.jumlahKamar} kamar di ${name}</div>
+      <div class="avail">${Array.from({length:KOS_INFO.jumlahKamar},(_,i)=>`<span>${i+1}</span>`).join("")}</div>
+    </div>
+    <div class="price-card sr" style="--d:1">
+      <div class="pt">Sewa bulanan</div>
+      <div class="pv">${harga}<small> / bulan</small></div>
+      <ul>${KOS_INFO.termasuk.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>
+      ${waAsk ? `<a class="btn btn-sage btn-block" href="${waAsk}" target="_blank" rel="noopener">💬 Tanya kamar kosong via WhatsApp</a>` : `<a class="btn btn-sage btn-block" href="#masuk">Sudah ngekos? Masuk & bayar</a>`}
+    </div>
+  </div></section>
+
+  ${(KOS_INFO.alamat || KOS_INFO.mapsUrl) ? `<section class="lp-sec alt" id="lokasi"><div class="lp-wrap">
+    <div class="sec-head sr"><span class="kicker">Lokasi</span><h2>${esc(KOS_INFO.keunggulan)}, ke mana-mana dekat.</h2><p>Tidak perlu jauh-jauh untuk kuliah, kerja, makan, atau belanja.</p></div>
+    <div class="loc">
+      <div class="loc-info sr">
+        <div class="loc-row"><em>📍</em><div><b>${KOS_INFO.alamat ? "Alamat" : "Lokasi"}</b><span>${KOS_INFO.alamat ? esc(KOS_INFO.alamat) : esc(KOS_INFO.keunggulan)+". Lihat titik lokasinya di Google Maps."}</span></div></div>
+        <div class="loc-row"><em>👩</em><div><b>Khusus ${esc(KOS_INFO.khusus.toLowerCase())}</b><span>Hanya menerima penghuni ${esc(KOS_INFO.khusus.toLowerCase())}.</span></div></div>
+        ${KOS_INFO.whatsapp?`<div class="loc-row"><em>💬</em><div><b>WhatsApp</b><span>+${esc(KOS_INFO.whatsapp)}</span></div></div>`:""}
+        ${KOS_INFO.email?`<div class="loc-row"><em>✉️</em><div><b>Email</b><span>${esc(KOS_INFO.email)}</span></div></div>`:""}
+        <a class="btn btn-primary" target="_blank" rel="noopener" href="${esc(KOS_INFO.mapsUrl || ("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(KOS_INFO.mapsQuery||KOS_INFO.alamat)))}">Buka di Google Maps ↗</a>
+      </div>
+      ${(KOS_INFO.mapsQuery||KOS_INFO.alamat) ? `<div class="map sr" style="--d:1"><iframe loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Peta lokasi" src="https://www.google.com/maps?q=${encodeURIComponent(KOS_INFO.mapsQuery||KOS_INFO.alamat)}&output=embed"></iframe></div>`
+        : `<a class="map map-art sr" style="--d:1" target="_blank" rel="noopener" href="${esc(KOS_INFO.mapsUrl || ("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(KOS_INFO.mapsQuery||KOS_INFO.alamat)))}">
+            <svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+              <rect width="600" height="400" fill="#E9E5CC"/>
+              <g stroke="#F8F6EC" stroke-width="22" fill="none" stroke-linecap="round"><path d="M-20 120 L620 90"/><path d="M-20 300 L620 330"/><path d="M180 -20 L150 420"/><path d="M430 -20 L470 420"/><path d="M-20 210 C150 190 420 240 620 200"/></g>
+              <g fill="#CDD3AE"><rect x="30" y="20" width="110" height="60" rx="10"/><rect x="230" y="130" width="160" height="60" rx="10"/><rect x="500" y="130" width="90" height="120" rx="10"/><rect x="30" y="240" width="90" height="40" rx="10"/><rect x="230" y="250" width="150" height="40" rx="10"/><rect x="510" y="350" width="80" height="40" rx="10"/></g>
+              <circle cx="300" cy="200" r="70" fill="#B0B98A" opacity=".35" class="pin-pulse"/>
+            </svg>
+            <div class="pin"><span>📍</span></div>
+            <div class="map-label"><b>${name}</b><small>${esc(KOS_INFO.keunggulan)} · ketuk untuk buka Maps ↗</small></div>
+          </a>`}
+    </div>
+  </div></section>` : ""}
+
+  <section class="lp-sec" id="faq"><div class="lp-wrap">
+    <div class="sec-head center sr"><span class="kicker">FAQ</span><h2>Pertanyaan yang sering muncul</h2></div>
+    <div class="faq">${[
+      [`Apakah ${CFG.kosName} khusus wanita?`, `Ya, ${CFG.kosName} adalah kos khusus ${KOS_INFO.khusus.toLowerCase()}. Untuk tanya kamar kosong, silakan chat pemilik lewat WhatsApp.`],
+      ["Fasilitasnya apa saja?", `Wi-Fi dan kamar mandi luar (bersama). Lokasinya ${KOS_INFO.keunggulan.toLowerCase()}, jadi ke kampus, kantor, tempat makan, dan belanja dekat.`],
+      ["Bagaimana cara bayar sewa kos?", "Masuk ke akunmu, klik Bayar, pilih bulan, lalu scan kode QRIS yang muncul pakai aplikasi m-banking atau e-wallet. Setelah pembayaran berhasil, status langsung berubah jadi Lunas."],
+      ["Aplikasi apa saja yang bisa dipakai untuk bayar?", "Semua aplikasi bank dan e-wallet yang mendukung QRIS, misalnya BCA, BRI, Mandiri, BNI, GoPay, DANA, OVO, dan ShopeePay."],
+      ["Apakah orang tua bisa membayarkan?", "Bisa. Di halaman bayar ada tombol untuk mengirim tagihan ke WhatsApp orang tua beserta link pembayarannya. Setelah dibayar, status di akun anak kos otomatis jadi Lunas."],
+      ["Kapan jatuh tempo pembayaran?", `Setiap tanggal ${CFG.dueDay} tiap bulan. Kamu juga bisa membayar lebih awal atau beberapa bulan sekaligus.`],
+      ["Apakah pembayarannya aman?", "Aman. Pembayaran diproses oleh Duitku, payment gateway resmi. Status Lunas hanya tercatat setelah ada konfirmasi resmi dari Duitku."],
+      ["Saya lupa password, bagaimana?", "Hubungi pemilik kos untuk mereset password kamarmu. Setelah itu, login dengan password awal dan segera ganti dengan password baru."],
+      ["Saya bayar tunai, apakah tercatat?", "Tercatat. Pemilik kos bisa menandai pembayaran tunai sebagai Lunas, dan statusnya akan terlihat di akunmu."],
+    ].map(([q,a],i)=>`<div class="qa sr" style="--d:${i%3}"><button type="button">${q}<i>+</i></button><div class="ans"><div><p>${a}</p></div></div></div>`).join("")}</div>
+  </div></section>
+
+  <section class="lp-sec" style="padding-top:20px"><div class="lp-wrap">
+    <div class="final sr"><div class="ring-deco r1"></div><div class="ring-deco r2"></div>
+      <h2>Sudah ngekos di ${name}?</h2>
+      <p>Masuk sekarang dan bayar sewa bulan ini dalam hitungan detik. Pasang juga aplikasinya di HP supaya lebih cepat.</p>
+      <div class="lp-cta"><a class="btn btn-sage btn-arrow" href="#masuk">Masuk ke akun <span>→</span></a><button type="button" class="btn btn-ghost install-only" style="color:var(--cream);border-color:rgba(245,242,226,.3)" data-install>📲 Pasang aplikasi</button></div>
+    </div>
+  </div></section>
+
+  <footer class="lp-foot"><div class="lp-wrap">
+    <div>© ${new Date().getFullYear()} ${name}${KOS_INFO.alamat?` · ${esc(KOS_INFO.alamat)}`:""}<br><span style="font-size:12px">Pembayaran diproses oleh Duitku.</span></div>
+    <nav><button type="button" data-legal="sk">Syarat & Ketentuan</button><button type="button" data-legal="refund">Kebijakan Pengembalian Dana</button>${KOS_INFO.whatsapp?`<a href="${waLink("Halo, saya ingin bertanya tentang kos.")}" target="_blank" rel="noopener">Kontak</a>`:""}</nav>
+  </div></footer>
+  ${waAsk ? `<a class="wa-float" href="${waAsk}" target="_blank" rel="noopener" aria-label="Chat WhatsApp">💬</a>`:""}`;
+
+  initHomeFx();
+}
+
+function initHomeFx(){
+  const root = $("#home");
+  // navbar mengecil saat scroll
+  const nav = $("#lpNav");
+  const onScroll = () => nav && nav.classList.toggle("scrolled", scrollY > 20);
+  onScroll(); removeEventListener("scroll", window.__lpScroll || (()=>{})); window.__lpScroll = onScroll; addEventListener("scroll", onScroll, {passive:true});
+
+  // muncul saat di-scroll + hitung angka
+  if(homeObs) homeObs.disconnect();
+  homeObs = new IntersectionObserver(entries => entries.forEach(en => {
+    if(!en.isIntersecting) return;
+    en.target.classList.add("in");
+    en.target.querySelectorAll("[data-count]").forEach(el => { if(el.dataset.done) return; el.dataset.done=1; countUp(el, Number(el.dataset.count), v=>Math.round(v)+(el.dataset.suffix||"")); });
+    homeObs.unobserve(en.target);
+  }), { threshold:.18, rootMargin:"0px 0px -40px 0px" });
+  root.querySelectorAll(".sr, #flow").forEach(el => homeObs.observe(el));
+
+  // kata yang berganti di judul
+  const words = ["scan.","klik.","santai.","sekali jalan."]; let wi = 0;
+  clearInterval(window.__rotIv);
+  window.__rotIv = setInterval(() => {
+    const el = $("#rotWord"); if(!el || $("#home").classList.contains("hidden")) return;
+    wi = (wi+1) % words.length; el.innerHTML = `<span>${words[wi]}</span>`;
+  }, 2600);
+
+  // efek miring 3D di kartu fasilitas (desktop)
+  if(matchMedia("(hover: hover)").matches) root.querySelectorAll(".tilt").forEach(c => {
+    c.addEventListener("mousemove", e => { const r=c.getBoundingClientRect(), x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5; c.style.transform=`perspective(800px) rotateX(${-y*7}deg) rotateY(${x*9}deg) translateY(-6px)`; });
+    c.addEventListener("mouseleave", () => c.style.transform="");
+  });
+
+  // FAQ
+  root.querySelectorAll(".qa button").forEach(b => b.onclick = () => b.parentElement.classList.toggle("open"));
+
+  // anchor halus
+  root.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener("click", e => {
+    const id = a.getAttribute("href");
+    if(id === "#masuk") return;          // ditangani router
+    e.preventDefault();
+    if(id === "#") return scrollTo({top:0, behavior:"smooth"});
+    const t = document.querySelector(id); if(t) scrollTo({ top: t.getBoundingClientRect().top + scrollY - 70, behavior:"smooth" });
+  }));
+
+  // syarat & refund
+  root.querySelectorAll("[data-legal]").forEach(b => b.onclick = () => openLegal(b.dataset.legal));
+}
+
+function openLegal(which){
+  const name = esc(CFG.kosName);
+  const waRefund = waLink(`Halo, saya ingin bertanya tentang pengembalian dana sewa di ${CFG.kosName}.`);
+  const body = which==="refund"
+    ? `<div class="legal"><p>Untuk informasi dan pengajuan pengembalian dana pembayaran sewa ${name}, silakan hubungi pemilik kos langsung melalui WhatsApp. Sertakan nama, nomor kamar, dan Order ID dari bukti pembayaran.</p>
+       ${waRefund?`<a class="btn btn-primary btn-block" style="margin-top:16px" href="${waRefund}" target="_blank" rel="noopener">💬 Hubungi via WhatsApp</a>`:""}</div>`
+    : `<div class="legal">
+       <h4>1. Layanan</h4><p>Website ini dipakai penghuni ${name} untuk melihat tagihan dan membayar sewa kamar secara online, serta oleh pemilik kos untuk mencatat pembayaran.</p>
+       <h4>2. Akun</h4><p>Setiap kamar memiliki satu akun. Penghuni wajib menjaga kerahasiaan password dan segera menggantinya setelah login pertama.</p>
+       <h4>3. Pembayaran</h4><p>Sewa ${rupiah(KOS_INFO.harga)} per bulan, jatuh tempo setiap tanggal ${CFG.dueDay}. Pembayaran online diproses melalui QRIS oleh Duitku. Pembayaran dianggap sah setelah statusnya tercatat Lunas di sistem.</p>
+       <h4>4. Pembayaran tunai</h4><p>Pembayaran di luar website dicatat secara manual oleh pemilik kos.</p>
+       <h4>5. Penghuni</h4><p>${name} adalah kos khusus ${esc(KOS_INFO.khusus.toLowerCase())}.</p>
+       <h4>6. Pengembalian dana</h4><p>Informasi pengembalian dana dapat ditanyakan langsung ke pemilik kos melalui WhatsApp.</p>
+       <h4>7. Kontak</h4><p>${KOS_INFO.whatsapp?`WhatsApp +${esc(KOS_INFO.whatsapp)}. `:""}${KOS_INFO.email?`Email ${esc(KOS_INFO.email)}. `:""}${KOS_INFO.alamat?esc(KOS_INFO.alamat):""}</p></div>`;
+  openModal(`<div class="modal-head"><div><h3>${which==="refund"?"Kebijakan Pengembalian Dana":"Syarat & Ketentuan"}</h3><p>${name}</p></div><button class="x" data-close>✕</button></div><div class="modal-body">${body}</div>`, "wide");
+}
+
+/* =========================================================
    PASANG APLIKASI (PWA) — Android & iPhone
    ========================================================= */
 let installPrompt = null;
@@ -1131,7 +1649,12 @@ function openInstall(){
   };
   draw();
 }
-if("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
+if("serviceWorker" in navigator){
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if(reloaded || !hadController) return; reloaded = true; location.reload(); });
+  const hadController = !!navigator.serviceWorker.controller;
+  addEventListener("load", () => navigator.serviceWorker.register("/sw.js", { updateViaCache:"none" }).then(r => r.update()).catch(()=>{}));
+}
 
 boot();
 </script>

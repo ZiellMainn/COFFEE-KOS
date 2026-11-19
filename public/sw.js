@@ -1,6 +1,6 @@
 // Service worker sederhana supaya website bisa dipasang sebagai aplikasi.
 // Data (/api) TIDAK pernah disimpan di cache, jadi status pembayaran selalu terbaru.
-const CACHE = "kos-shell-v1";
+const CACHE = "kos-shell-v4";
 const SHELL = ["/", "/manifest.webmanifest", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", e => {
