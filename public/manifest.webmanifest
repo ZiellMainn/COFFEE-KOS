@@ -1,9 +1,8 @@
 {
-  "name": "Coffee Kos",
+  "name": "Coffee Kos — Pembayaran Kos",
   "short_name": "Coffee Kos",
-  "description": "Cek tagihan dan bayar kos lewat QRIS.",
-  "id": "/",
-  "start_url": "/",
+  "description": "Bayar kos lewat QRIS dan pantau status pembayaran.",
+  "start_url": "/?source=app",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

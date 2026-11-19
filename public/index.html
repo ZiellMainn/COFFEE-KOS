@@ -4,541 +4,428 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#434423">
-<title>Coffee Kos — Pembayaran Kos</title>
-<link rel="icon" href="/logo.svg" type="image/svg+xml">
 <link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" href="/icons/favicon-64.png">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Coffee Kos">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>KosanKu — Pembayaran Kos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* =========================================================
-   WARNA & UKURAN
+   PALET WARNA (dari referensi)
    ========================================================= */
 :root{
-  --olive:#434423; --olive-2:#5B5E34; --olive-3:#2E2F17;
-  --sage:#B0B98A; --sage-2:#CDD3AE; --sage-3:#E6E9D4;
-  --sand:#DFDABB; --cream:#F5F2E2; --paper:#FBF9F1;
-  --ink:#2A2B16; --muted:#5F6046;
-  --rust:#A24E2C; --rust-bg:#F6E1D3; --rust-line:#E4B79C;
-  --amber:#8A6412; --amber-bg:#F3E6C3;
-  --r-lg:28px; --r-md:18px; --r-sm:12px;
+  --olive:#434423;      /* hijau zaitun tua  */
+  --olive-2:#5B5E34;
+  --olive-3:#2E2F17;
+  --sage:#B0B98A;       /* hijau sage        */
+  --sage-2:#CDD3AE;
+  --sand:#DFDABB;       /* krem pasir        */
+  --cream:#F5F2E2;      /* krem terang       */
+  --paper:#FBF9F1;
+  --ink:#2A2B16;
+  --muted:#6F7055;
+  --rust:#B5603E;  --rust-bg:#F4DED0;   /* status belum bayar */
+  --amber:#B8872A; --amber-bg:#F3E6C3;  /* status menunggu    */
+  --radius:20px;
+  --shadow:0 1px 2px rgba(46,47,23,.06),0 8px 24px -8px rgba(46,47,23,.18);
+  --shadow-lg:0 30px 60px -20px rgba(46,47,23,.35);
   --ease:cubic-bezier(.22,1,.36,1);
-  --display:"Bricolage Grotesque",system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;font-size:17px;line-height:1.6;background:var(--cream);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-h1,h2,h3,h4{font-family:var(--display);line-height:1.12;letter-spacing:-.015em;font-weight:700}
+html{scroll-behavior:smooth}
+body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,.serif{font-family:Fraunces,Georgia,serif;letter-spacing:-.01em}
 button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 input,select{font:inherit;color:inherit}
-a{color:inherit}
 .hidden{display:none!important}
-:focus-visible{outline:3px solid var(--olive);outline-offset:3px;border-radius:6px}
-.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
 
+/* ---------- animasi dasar ---------- */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@keyframes pop{0%{transform:scale(.7);opacity:0}70%{transform:scale(1.06)}100%{transform:scale(1);opacity:1}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(176,185,138,.7)}100%{box-shadow:0 0 0 18px rgba(176,185,138,0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes draw{to{stroke-dashoffset:0}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @keyframes scan{0%,100%{top:6%}50%{top:88%}}
-@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
-@keyframes flash{0%{box-shadow:0 0 0 0 rgba(176,185,138,.9)}100%{box-shadow:0 0 0 16px rgba(176,185,138,0)}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+@keyframes shake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
+@keyframes windowOn{0%,100%{fill:var(--olive-2)}50%{fill:#F2D98A}}
+.reveal{opacity:0;animation:fadeUp .7s var(--ease) forwards;animation-delay:calc(var(--i,0) * 70ms)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}}
 
-/* ---------- logo ---------- */
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.02em;color:var(--olive);text-decoration:none}
-.brand svg{width:34px;height:34px;flex:none}
-.logo-bean{fill:var(--olive)}
-.logo-crease{fill:none;stroke:var(--sand);stroke-width:5;stroke-linecap:round}
+/* =========================================================
+   LOGIN
+   ========================================================= */
+#login{display:grid;grid-template-columns:1.05fr 1fr;min-height:100vh}
+.login-art{background:var(--olive);color:var(--cream);padding:48px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.login-art::before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(176,185,138,.25),transparent 65%);right:-160px;top:-120px;animation:float 9s ease-in-out infinite}
+.brand{display:flex;align-items:center;gap:10px;font-family:Fraunces,serif;font-size:22px;font-weight:600}
+.brand-mark{width:38px;height:38px;border-radius:12px;background:var(--sage);display:grid;place-items:center;color:var(--olive)}
+.login-art h1{font-size:clamp(34px,4vw,52px);line-height:1.05;max-width:12ch;margin:28px 0 14px}
+.login-art h1 em{font-style:italic;color:var(--sage)}
+.login-art p{opacity:.8;max-width:42ch;line-height:1.6}
+.house{width:100%;max-width:440px;margin:24px auto 0;animation:float 6s ease-in-out infinite}
+.house .win{animation:windowOn 4s ease-in-out infinite}
+.login-feat{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;opacity:.85}
+.login-feat span{display:flex;align-items:center;gap:6px}
+.login-feat i{width:8px;height:8px;border-radius:50%;background:var(--sage);display:inline-block}
 
-/* ---------- biji kopi status ---------- */
-/* warna dikirim lewat variabel supaya sampai ke dalam simbol <use> */
-.bean{width:30px;height:30px;flex:none;display:block;--bf:none;--bs:var(--sand);--cs:var(--sand);--bd:none}
-.bean.s-lunas{--bf:var(--olive);--bs:var(--olive);--cs:var(--sand)}
-.bean.s-manual{--bf:var(--sage);--bs:var(--olive-2);--cs:var(--olive)}
-.bean.s-belum{--bf:#fff;--bs:var(--rust);--cs:var(--rust)}
-.bean.s-telat{--bf:var(--rust);--bs:var(--rust);--cs:var(--rust-bg)}
-.bean.s-next{--bf:none;--bs:var(--sage);--cs:var(--sage);--bd:5 5}
-.bean.s-none{--bf:none;--bs:var(--sand);--cs:var(--sand)}
-
-/* ---------- tombol ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border-radius:999px;font-weight:700;font-size:17px;transition:transform .15s,background .2s,box-shadow .2s;text-decoration:none;text-align:center;line-height:1.2}
-.btn:active{transform:scale(.97)}
-.btn-primary{background:var(--olive);color:var(--cream)}
-.btn-primary:hover{background:var(--olive-3)}
-.btn-light{background:var(--paper);color:var(--olive);box-shadow:inset 0 0 0 2px var(--sand)}
-.btn-light:hover{box-shadow:inset 0 0 0 2px var(--sage)}
-.btn-sage{background:var(--sage-2);color:var(--olive)}
-.btn-sage:hover{background:var(--sage)}
-.btn-danger{background:var(--rust);color:#fff}
-.btn-big{min-height:64px;font-size:19px;padding:0 30px}
-.btn-sm{min-height:42px;font-size:15px;padding:0 16px}
-.btn-block{width:100%}
-.btn[disabled]{opacity:.5;pointer-events:none}
-.spinner{width:22px;height:22px;border:3px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
-
-/* ---------- form ---------- */
+.login-form-wrap{display:grid;place-items:center;padding:40px 24px;background:var(--cream)}
+.login-card{width:100%;max-width:400px}
+.login-card h2{font-size:34px;margin-bottom:6px}
+.login-card .sub{color:var(--muted);margin-bottom:28px}
 .field{margin-bottom:16px}
-.field label{display:block;font-weight:700;font-size:15px;margin-bottom:6px;color:var(--olive)}
-.field .help{font-size:14px;color:var(--muted);margin-top:5px;line-height:1.5}
-.input{width:100%;min-height:54px;padding:12px 16px;border-radius:var(--r-sm);border:2px solid var(--sand);background:#fff;font-size:17px;transition:border-color .2s,box-shadow .2s}
-.input:focus{outline:none;border-color:var(--olive-2);box-shadow:0 0 0 4px var(--sage-3)}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:7px;color:var(--olive)}
+.input{width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--sand);background:var(--paper);outline:none;transition:border-color .25s,box-shadow .25s,transform .2s}
+.input:focus{border-color:var(--sage);box-shadow:0 0 0 4px rgba(176,185,138,.3)}
 .pw-wrap{position:relative}
-.pw-wrap .input{padding-right:96px}
-.pw-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:700;color:var(--olive);padding:8px 12px;border-radius:10px;background:var(--sage-3)}
-.err{color:var(--rust);font-size:15px;font-weight:600;min-height:0}
-.err:not(:empty){margin:4px 0 14px;padding:10px 14px;background:var(--rust-bg);border-radius:var(--r-sm)}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.check{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:var(--r-sm);background:var(--sage-3);font-size:15px;line-height:1.5;cursor:pointer}
-.check input{width:22px;height:22px;margin-top:2px;accent-color:var(--olive);flex:none}
+.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:var(--muted);padding:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 22px;border-radius:14px;font-weight:600;transition:transform .2s var(--ease),box-shadow .25s,background .25s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--olive);color:var(--cream);box-shadow:0 10px 24px -10px rgba(67,68,35,.7)}
+.btn-primary:hover{background:var(--olive-3);transform:translateY(-2px)}
+.btn-sage{background:var(--sage);color:var(--olive-3)}
+.btn-sage:hover{background:var(--sage-2);transform:translateY(-2px)}
+.btn-ghost{background:transparent;border:1.5px solid var(--sand);color:var(--olive)}
+.btn-ghost:hover{background:var(--sand)}
+.btn-block{width:100%}
+.btn-sm{padding:9px 14px;border-radius:11px;font-size:13px}
+.err{color:var(--rust);font-size:13px;min-height:20px;margin:-4px 0 10px}
+.shake{animation:shake .5s}
+.demo-box{margin-top:26px;padding:16px;border-radius:16px;background:var(--sand);font-size:13px}
+.demo-box b{color:var(--olive)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{padding:6px 11px;border-radius:999px;background:var(--paper);font-size:12px;font-weight:600;transition:all .2s}
+.chip:hover{background:var(--olive);color:var(--cream);transform:translateY(-2px)}
+.chip.owner{background:var(--olive);color:var(--cream)}
 
 /* =========================================================
-   HALAMAN PANDUAN (sebelum masuk)
+   APP SHELL
    ========================================================= */
-.g-top{position:sticky;top:0;z-index:20;background:rgba(245,242,226,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--sand)}
-.g-top .wrap{display:flex;justify-content:space-between;align-items:center;height:72px}
-.g-hero{padding:56px 0 72px}
-.g-hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
-.g-hero h1{font-size:clamp(40px,6vw,68px);font-weight:800;color:var(--olive);letter-spacing:-.03em}
-.g-hero .lead{font-size:20px;color:var(--muted);margin:20px 0 30px;max-width:34ch}
-.g-hero .cta{display:flex;gap:12px;flex-wrap:wrap}
+.topbar{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(245,242,226,.82);border-bottom:1px solid rgba(223,218,187,.7)}
+.topbar-in{max-width:1180px;margin:auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.topbar .brand{color:var(--olive);font-size:20px}
+.topbar .brand-mark{width:34px;height:34px;background:var(--olive);color:var(--sage)}
+.user-chip{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--sage);color:var(--olive);display:grid;place-items:center;font-weight:700;font-size:14px}
+.user-chip small{display:block;color:var(--muted);font-size:11px}
+.sandbox-bar{background:var(--olive-3);color:var(--sand);font-size:12px;text-align:center;padding:7px 12px}
+.sandbox-bar b{color:var(--sage)}
+main{max-width:1180px;margin:auto;padding:28px 24px 80px}
+.card{background:var(--paper);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);border:1px solid rgba(223,218,187,.6)}
+.section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:34px 0 14px;flex-wrap:wrap}
+.section-title h3{font-size:24px}
+.section-title p{color:var(--muted);font-size:14px}
 
-/* contoh tampilan */
-.demo{background:var(--paper);border-radius:var(--r-lg);padding:22px;box-shadow:0 30px 60px -30px rgba(46,47,23,.45),inset 0 0 0 2px var(--sand)}
-.demo-cap{font-size:14px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.demo-cap i{width:8px;height:8px;border-radius:50%;background:var(--sage);display:inline-block}
-.demo-alert{background:var(--rust-bg);border-radius:var(--r-md);padding:18px 20px;margin-bottom:16px}
-.demo-alert b{display:block;font-family:var(--display);font-size:22px;color:var(--rust);line-height:1.2}
-.demo-alert span{font-size:15px;color:var(--ink)}
-.demo-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-.demo-grid div{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:var(--r-sm);background:var(--cream);font-size:13px;font-weight:600}
-.demo-grid .bean{width:28px;height:28px}
-.demo-grid .roast{animation:pop .5s var(--ease) both;animation-delay:calc(var(--d) * 160ms + 300ms)}
-.demo-btn{margin-top:16px;width:100%;pointer-events:none}
+/* ---------- penghuni hero ---------- */
+.hero{background:var(--olive);color:var(--cream);border-radius:28px;padding:32px;display:grid;grid-template-columns:1.3fr 1fr;gap:28px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:auto -80px -140px auto;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(176,185,138,.3),transparent 70%)}
+.hero h2{font-size:clamp(28px,3.4vw,40px);line-height:1.1}
+.hero .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;background:rgba(245,242,226,.12)}
+.status-box{background:var(--cream);color:var(--ink);border-radius:22px;padding:22px;position:relative;z-index:1}
+.status-box .label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.status-box .month{font-family:Fraunces,serif;font-size:26px;margin:4px 0 10px}
+.status-box .amount{font-size:30px;font-weight:700;color:var(--olive);margin-bottom:14px}
+.btn-pay{width:100%;font-size:16px;padding:16px;animation:pulseRing 2s infinite}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700}
+.badge::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.b-lunas{background:var(--sage-2);color:var(--olive)}
+.b-belum{background:var(--rust-bg);color:var(--rust)}
+.b-telat{background:var(--rust);color:#fff}
+.b-telat::before{background:#fff}
+.b-pending{background:var(--amber-bg);color:var(--amber)}
+.b-next{background:var(--sand);color:var(--muted)}
+.b-none{background:transparent;color:var(--muted);border:1px dashed var(--sand)}
 
-.g-sec{padding:72px 0;border-top:1px solid var(--sand)}
-.g-sec h2{font-size:clamp(30px,4vw,44px);color:var(--olive);max-width:20ch}
-.g-sec .intro{font-size:19px;color:var(--muted);margin-top:12px;max-width:52ch}
-.steps{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:36px;counter-reset:s}
-.steps li{background:var(--paper);border-radius:var(--r-md);padding:24px;box-shadow:inset 0 0 0 2px var(--sand);position:relative}
-.steps li::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--olive);color:var(--cream);font-family:var(--display);font-weight:800;font-size:20px;margin-bottom:16px}
-.steps b{display:block;font-size:19px;font-family:var(--display);margin-bottom:6px;color:var(--olive)}
-.steps span{font-size:16px;color:var(--muted)}
+/* langkah */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+.step{display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:18px;background:var(--paper);border:1px solid rgba(223,218,187,.7);transition:transform .3s var(--ease),box-shadow .3s}
+.step:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.step .num{flex:none;width:40px;height:40px;border-radius:12px;background:var(--sand);display:grid;place-items:center;font-family:Fraunces,serif;font-weight:700;color:var(--olive)}
+.step b{display:block;margin-bottom:3px}
+.step span{font-size:13px;color:var(--muted);line-height:1.5}
 
-.legend-big{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:32px}
-.legend-big div{display:flex;gap:14px;align-items:flex-start;padding:18px;border-radius:var(--r-md);background:var(--paper);box-shadow:inset 0 0 0 2px var(--sand)}
-.legend-big .bean{width:40px;height:40px}
-.legend-big b{display:block;font-size:17px}
-.legend-big span{font-size:15px;color:var(--muted);line-height:1.5}
-.tip{margin-top:20px;padding:18px 20px;border-radius:var(--r-md);background:var(--sage-3);font-size:16px;max-width:70ch}
+/* grid bulan */
+.year-switch{display:flex;align-items:center;gap:6px;background:var(--paper);padding:5px;border-radius:14px;border:1px solid var(--sand)}
+.year-switch button{width:34px;height:34px;border-radius:10px;font-weight:700;transition:background .2s}
+.year-switch button:hover{background:var(--sand)}
+.year-switch span{font-weight:700;min-width:52px;text-align:center}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.mcard{padding:16px;border-radius:18px;background:var(--paper);border:1.5px solid rgba(223,218,187,.8);transition:transform .3s var(--ease),box-shadow .3s,border-color .3s;position:relative;text-align:left}
+.mcard .m{font-family:Fraunces,serif;font-size:20px;font-weight:600}
+.mcard .y{font-size:12px;color:var(--muted);margin-bottom:12px}
+.mcard.click{cursor:pointer}
+.mcard.click:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:var(--sage)}
+.mcard.is-lunas{background:linear-gradient(160deg,var(--paper),rgba(205,211,174,.55))}
+.mcard.is-now{border-color:var(--olive);box-shadow:0 0 0 3px rgba(67,68,35,.12)}
+.mcard .now-tag{position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--olive);text-transform:uppercase}
+.mcard .hint{font-size:11px;color:var(--olive);font-weight:600;margin-top:10px;opacity:0;transform:translateY(4px);transition:all .25s}
+.mcard.click:hover .hint{opacity:1;transform:none}
 
-.owner-feats{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:32px}
-.owner-feats div{padding:24px;border-radius:var(--r-md);background:var(--olive);color:var(--cream)}
-.owner-feats b{display:block;font-family:var(--display);font-size:21px;margin-bottom:6px;color:#fff}
-.owner-feats span{font-size:16px;opacity:.85}
-
-.faq{margin-top:28px;max-width:760px}
-.faq details{border-bottom:1px solid var(--sand)}
-.faq summary{cursor:pointer;list-style:none;padding:18px 0;font-weight:700;font-size:18px;display:flex;justify-content:space-between;gap:16px}
-.faq summary::after{content:"+";font-size:26px;line-height:1;color:var(--olive-2)}
-.faq details[open] summary::after{content:"–"}
-.faq p{padding:0 0 18px;color:var(--muted);max-width:62ch}
-
-.g-login{padding:80px 0 100px;background:var(--olive)}
-.g-login .wrap{display:grid;grid-template-columns:1fr 440px;gap:56px;align-items:center}
-.g-login h2{font-size:clamp(34px,4.5vw,52px);color:var(--cream)}
-.g-login .intro{color:var(--sage-2);font-size:19px;margin-top:14px;max-width:38ch}
-.login-card{background:var(--paper);border-radius:var(--r-lg);padding:32px}
-.login-card.shake{animation:shake .4s}
-.login-card .note{margin-top:16px;font-size:15px;color:var(--muted);line-height:1.5}
-.install{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;margin-top:32px;padding:28px;border-radius:var(--r-lg);background:var(--paper);box-shadow:inset 0 0 0 2px var(--sand)}
-.install img{width:112px;height:112px;border-radius:26px;box-shadow:0 14px 30px -14px rgba(46,47,23,.55)}
-.install h3{font-size:24px;color:var(--olive);margin-bottom:6px}
-.install p{color:var(--muted);font-size:16px;max-width:56ch}
-.install .how-os{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
-.install .how-os div{background:var(--cream);border-radius:var(--r-md);padding:14px 16px;font-size:15px;line-height:1.5}
-.install .how-os b{display:block;color:var(--olive);margin-bottom:2px}
-.install .done{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--olive);background:var(--sage-3);padding:10px 16px;border-radius:999px;margin-top:14px}
-@media (max-width:600px){.install{grid-template-columns:1fr;gap:16px;padding:22px}.install img{width:84px;height:84px;border-radius:20px}.install .how-os{grid-template-columns:1fr}}
-.g-foot{text-align:center;font-size:14px;color:var(--muted);padding:28px 0}
+/* riwayat */
+.two-col{display:grid;grid-template-columns:1.2fr 1fr;gap:18px}
+.list{display:flex;flex-direction:column}
+.li{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 4px;border-bottom:1px dashed var(--sand)}
+.li:last-child{border-bottom:none}
+.li .ic{width:40px;height:40px;border-radius:12px;background:var(--sage-2);display:grid;place-items:center;color:var(--olive);flex:none}
+.li .t{font-weight:600}
+.li small{color:var(--muted);font-size:12px}
+.empty{padding:28px;text-align:center;color:var(--muted);font-size:14px}
 
 /* =========================================================
-   APLIKASI (sesudah masuk)
+   PEMILIK
    ========================================================= */
-.sandbox-bar{background:var(--amber-bg);color:var(--amber);text-align:center;font-size:14px;font-weight:600;padding:8px 16px}
-.topbar{position:sticky;top:0;z-index:30;background:rgba(245,242,226,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--sand)}
-.topbar .wrap{display:flex;justify-content:space-between;align-items:center;height:72px;gap:12px}
-.top-acts{display:flex;align-items:center;gap:8px}
-.who{font-size:14px;text-align:right;line-height:1.3;margin-right:6px}
-.who b{display:block;font-size:16px}
-.who small{color:var(--muted)}
-main{padding:32px 0 80px}
-.notice{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:16px 20px;border-radius:var(--r-md);margin-bottom:18px;font-size:16px;line-height:1.5}
-.notice.warn{background:var(--amber-bg);color:#5d4510}
-.notice.info{background:var(--sage-3);color:var(--olive)}
+.tabs{display:inline-flex;gap:4px;background:var(--paper);padding:5px;border-radius:16px;border:1px solid var(--sand);position:relative}
+.tab{padding:10px 18px;border-radius:12px;font-weight:600;font-size:14px;color:var(--muted);position:relative;z-index:1;transition:color .3s}
+.tab.active{color:var(--cream)}
+.tab-ind{position:absolute;top:5px;bottom:5px;border-radius:12px;background:var(--olive);transition:all .45s var(--ease);z-index:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat{padding:22px;border-radius:22px;background:var(--paper);border:1px solid rgba(223,218,187,.7);box-shadow:var(--shadow);position:relative;overflow:hidden;transition:transform .3s var(--ease)}
+.stat:hover{transform:translateY(-4px)}
+.stat.dark{background:var(--olive);color:var(--cream)}
+.stat .k{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;opacity:.7}
+.stat .v{font-family:Fraunces,serif;font-size:34px;font-weight:700;margin:8px 0 4px}
+.stat .d{font-size:13px;opacity:.75}
+.ring{position:absolute;right:16px;top:16px;width:64px;height:64px}
+.ring circle{fill:none;stroke-width:7}
+.ring .bg{stroke:rgba(245,242,226,.15)}
+.ring .fg{stroke:var(--sage);stroke-linecap:round;transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset 1.4s var(--ease)}
 
-/* status besar anak kos */
-.status{border-radius:var(--r-lg);padding:32px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
-.status.bad{background:var(--rust-bg);box-shadow:inset 0 0 0 2px var(--rust-line)}
-.status.good{background:var(--olive);color:var(--cream)}
-.status .eyebrow{font-weight:700;font-size:16px}
-.status.bad .eyebrow{color:var(--rust)}
-.status.good .eyebrow{color:var(--sage)}
-.status h2{font-size:clamp(30px,4.2vw,46px);margin:6px 0 10px}
-.status.bad h2{color:var(--rust)}
-.status p{font-size:17px;max-width:52ch}
-.status.good p{color:var(--sage-2)}
-.status .pay{display:flex;flex-direction:column;align-items:stretch;gap:8px;min-width:280px}
-.status .total{font-family:var(--display);font-weight:800;font-size:34px;text-align:center}
-.status.bad .total{color:var(--ink)}
-.status small{font-size:14px;text-align:center;opacity:.8}
-.status.good .btn-light{background:transparent;color:var(--cream);box-shadow:inset 0 0 0 2px var(--olive-2)}
+.matrix-wrap{overflow-x:auto;border-radius:20px;background:var(--paper);border:1px solid rgba(223,218,187,.8);box-shadow:var(--shadow)}
+table.matrix{border-collapse:separate;border-spacing:0;width:100%;min-width:900px}
+.matrix th,.matrix td{padding:10px 6px;text-align:center;font-size:13px}
+.matrix thead th{font-weight:700;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--sand);position:sticky;top:0;background:var(--paper)}
+.matrix thead th.cur{color:var(--olive)}
+.matrix td.room{text-align:left;padding-left:18px;min-width:170px;position:sticky;left:0;background:var(--paper);z-index:1}
+.matrix td.room b{display:block}
+.matrix td.room small{color:var(--muted);font-size:11px}
+.matrix tbody tr{transition:background .2s}
+.matrix tbody tr:hover td{background:rgba(223,218,187,.3)}
+.cell{width:38px;height:38px;border-radius:11px;display:inline-grid;place-items:center;font-size:15px;font-weight:700;transition:transform .25s var(--ease),box-shadow .25s;opacity:0;animation:pop .45s var(--ease) forwards}
+.cell:hover{transform:scale(1.18);box-shadow:var(--shadow)}
+.c-lunas{background:var(--sage);color:var(--olive-3)}
+.c-manual{background:var(--sage-2);color:var(--olive);outline:2px dashed var(--sage);outline-offset:-4px}
+.c-belum{background:var(--rust-bg);color:var(--rust)}
+.c-telat{background:var(--rust);color:#fff}
+.c-next{background:var(--cream);color:var(--sand);border:1.5px dashed var(--sand)}
+.c-none{background:transparent;color:var(--sand)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:12px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:16px;height:16px;border-radius:5px;display:inline-block}
 
-.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 0}
-.facts div{background:var(--paper);border-radius:var(--r-md);padding:16px 18px;box-shadow:inset 0 0 0 2px var(--sand)}
-.facts dt{font-size:14px;color:var(--muted)}
-.facts dd{font-weight:700;font-size:18px;color:var(--olive);line-height:1.3;margin-top:2px}
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.room-card{padding:20px;border-radius:22px;background:var(--paper);border:1px solid rgba(223,218,187,.8);box-shadow:var(--shadow);transition:transform .3s var(--ease)}
+.room-card:hover{transform:translateY(-5px)}
+.room-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.room-no{font-family:Fraunces,serif;font-size:13px;font-weight:700;color:var(--olive);background:var(--sand);padding:5px 10px;border-radius:10px}
+.room-card h4{font-size:18px;font-family:Fraunces,serif}
+.room-card .u{font-size:13px;color:var(--muted);margin:2px 0 12px}
+.room-card .price{font-weight:700;color:var(--olive);margin-bottom:14px}
+.room-card .acts{display:flex;gap:8px}
+.progress{height:8px;border-radius:99px;background:var(--sand);overflow:hidden;margin-bottom:6px}
+.progress div{height:100%;background:var(--olive);border-radius:99px;width:0;transition:width 1.2s var(--ease)}
+.prog-label{font-size:12px;color:var(--muted);margin-bottom:14px}
 
-.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:44px 0 16px}
-.sec-head h3{font-size:30px;color:var(--olive)}
-.sec-head p{color:var(--muted);font-size:16px;margin-top:4px;max-width:56ch}
-.year{display:flex;align-items:center;gap:4px;background:var(--paper);border-radius:999px;padding:4px;box-shadow:inset 0 0 0 2px var(--sand)}
-.year button{width:44px;height:44px;border-radius:50%;font-size:22px;font-weight:700;color:var(--olive)}
-.year button:hover{background:var(--sage-3)}
-.year span{font-weight:800;font-family:var(--display);font-size:19px;min-width:58px;text-align:center}
+table.tx{width:100%;border-collapse:collapse}
+.tx th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:12px;border-bottom:1px solid var(--sand)}
+.tx td{padding:14px 12px;border-bottom:1px dashed var(--sand);font-size:14px}
+.tx tr{animation:fadeUp .5s var(--ease) both}
 
-.months{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
-.mtile{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:16px;border-radius:var(--r-md);background:var(--paper);box-shadow:inset 0 0 0 2px var(--sand);text-align:left;position:relative;min-height:150px}
-.mtile .bean{width:36px;height:36px}
-.mtile .mn{font-family:var(--display);font-weight:700;font-size:20px;line-height:1.1}
-.mtile .st{font-size:14px;font-weight:600;color:var(--muted);line-height:1.3}
-.mtile.is-now{box-shadow:inset 0 0 0 3px var(--olive)}
-.mtile .now{position:absolute;top:12px;right:12px;font-size:12px;font-weight:700;background:var(--olive);color:var(--cream);padding:3px 9px;border-radius:999px}
-.mtile.t-belum,.mtile.t-telat{background:#fff;box-shadow:inset 0 0 0 2px var(--rust-line)}
-.mtile.t-belum .st,.mtile.t-telat .st{color:var(--rust)}
-.mtile.t-lunas .st,.mtile.t-manual .st{color:var(--olive-2)}
-.mtile .go{margin-top:auto;font-size:14px;font-weight:700;background:var(--rust);color:#fff;padding:7px 14px;border-radius:999px}
-button.mtile:hover{transform:translateY(-2px)}
-button.mtile{transition:transform .15s}
-.legend{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:16px;font-size:15px;color:var(--muted)}
-.legend span{display:flex;align-items:center;gap:8px}
-.legend .bean{width:24px;height:24px}
+/* =========================================================
+   MODAL
+   ========================================================= */
+.overlay{position:fixed;inset:0;background:rgba(46,47,23,.45);backdrop-filter:blur(6px);z-index:50;display:grid;place-items:center;padding:20px;animation:fadeIn .3s}
+.modal{background:var(--paper);border-radius:28px;width:100%;max-width:440px;max-height:92vh;overflow:auto;box-shadow:var(--shadow-lg);animation:pop .45s var(--ease)}
+.modal.wide{max-width:520px}
+.modal-head{padding:22px 24px 0;display:flex;justify-content:space-between;align-items:start;gap:12px}
+.modal-head h3{font-size:24px}
+.modal-head p{color:var(--muted);font-size:13px;margin-top:3px}
+.x{width:36px;height:36px;border-radius:50%;background:var(--cream);font-size:18px;flex:none;transition:transform .3s,background .2s}
+.x:hover{transform:rotate(90deg);background:var(--sand)}
+.modal-body{padding:20px 24px 24px}
 
-.two{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;margin-top:44px}
-.panel{background:var(--paper);border-radius:var(--r-lg);padding:28px;box-shadow:inset 0 0 0 2px var(--sand)}
-.panel h3{font-size:26px;color:var(--olive);margin-bottom:6px}
-.panel > p{color:var(--muted);font-size:15px;margin-bottom:16px}
-.hist{list-style:none}
-.hist li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--sand)}
-.hist li:last-child{border:none}
-.hist .t{font-weight:700}
-.hist small{display:block;color:var(--muted);font-size:14px}
-.hist .amt{font-weight:800;color:var(--olive);white-space:nowrap}
-.empty{padding:28px 0;text-align:center;color:var(--muted)}
-
-/* ---------- pemilik ---------- */
-.o-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
-.o-head h2{font-size:clamp(32px,4vw,44px);color:var(--olive)}
-.live{display:inline-flex;align-items:center;gap:8px;font-size:15px;color:var(--muted);margin-top:6px}
-.live i{width:10px;height:10px;border-radius:50%;background:#6e8a3a;animation:blink 2s infinite}
-.tabs{display:flex;gap:6px;background:var(--paper);padding:6px;border-radius:999px;box-shadow:inset 0 0 0 2px var(--sand);overflow-x:auto}
-.tab{min-height:46px;padding:0 20px;border-radius:999px;font-weight:700;font-size:16px;color:var(--muted);white-space:nowrap}
-.tab.active{background:var(--olive);color:var(--cream)}
-.sum{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:14px;margin-top:24px}
-.sum > div{border-radius:var(--r-lg);padding:24px;background:var(--paper);box-shadow:inset 0 0 0 2px var(--sand)}
-.sum .main{background:var(--olive);color:var(--cream);box-shadow:none}
-.sum .k{font-size:15px;opacity:.85}
-.sum .v{font-family:var(--display);font-weight:800;font-size:40px;line-height:1.1;margin:6px 0}
-.sum .main .v{color:#fff}
-.sum .d{font-size:14px;opacity:.8}
-.bar{height:12px;border-radius:99px;background:var(--olive-2);overflow:hidden;margin-top:12px}
-.bar div{height:100%;background:var(--sage);border-radius:99px;transition:width 1s var(--ease)}
-.unpaid-list{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
-.chip{display:inline-flex;align-items:center;gap:10px;padding:10px 16px 10px 12px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 2px var(--rust-line);font-size:15px;font-weight:600;text-align:left}
-.chip .bean{width:24px;height:24px}
-.chip:hover{background:var(--rust-bg)}
-.all-good{padding:16px 20px;border-radius:var(--r-md);background:var(--sage-3);color:var(--olive);font-weight:600}
-
-.matrix-wrap{overflow-x:auto;background:var(--paper);border-radius:var(--r-lg);box-shadow:inset 0 0 0 2px var(--sand);padding:8px}
-.matrix{border-collapse:separate;border-spacing:4px;width:100%;min-width:820px}
-.matrix th{font-size:14px;font-weight:700;color:var(--muted);padding:8px 2px;text-align:center}
-.matrix th.cur{color:var(--cream);background:var(--olive);border-radius:10px}
-.matrix td.room{padding:8px 12px;min-width:170px}
-.matrix td.room b{display:block;font-size:16px}
-.matrix td.room small{font-size:13px;color:var(--muted)}
-.cell{width:100%;height:50px;border-radius:12px;display:grid;place-items:center;background:var(--cream);transition:transform .15s}
-.cell:hover:not(:disabled){transform:scale(1.08);background:var(--sage-3)}
-.cell:disabled{cursor:default;background:transparent}
-.cell .bean{width:28px;height:28px}
-.cell.flash{animation:flash 1.2s 3}
-.m-acts{display:flex;gap:10px;flex-wrap:wrap}
-
-.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:24px}
-.rcard{background:var(--paper);border-radius:var(--r-lg);padding:22px;box-shadow:inset 0 0 0 2px var(--sand);display:flex;flex-direction:column;gap:6px}
-.rcard .no{font-weight:700;color:var(--muted);font-size:15px;display:flex;justify-content:space-between;align-items:center}
-.rcard h4{font-size:24px;color:var(--olive)}
-.rcard dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:15px;margin:8px 0}
-.rcard dt{color:var(--muted)}
-.rcard dd{font-weight:600}
-.rcard .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:auto;padding-top:10px}
-.rcard .acts .btn:first-child{grid-column:1/-1}
-.tag{font-size:13px;font-weight:700;padding:4px 10px;border-radius:999px}
-.tag.ok{background:var(--sage-3);color:var(--olive)}
-.tag.no{background:var(--rust-bg);color:var(--rust)}
-.tag.na{background:var(--cream);color:var(--muted)}
-
-.tx{width:100%;border-collapse:collapse;font-size:15px;min-width:640px}
-.tx th{text-align:left;color:var(--muted);font-weight:700;padding:14px 16px;border-bottom:2px solid var(--sand)}
-.tx td{padding:14px 16px;border-bottom:1px solid var(--sand)}
-
-/* ---------- modal ---------- */
-.overlay{position:fixed;inset:0;background:rgba(42,43,22,.55);z-index:80;display:grid;place-items:center;padding:16px;animation:fadeIn .2s;overflow-y:auto}
-.modal{background:var(--paper);border-radius:var(--r-lg);width:100%;max-width:460px;max-height:calc(100vh - 32px);overflow-y:auto;animation:rise .3s var(--ease)}
-.modal.wide{max-width:560px}
-.m-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:24px 24px 8px}
-.m-head h3{font-size:26px;color:var(--olive)}
-.m-head p{color:var(--muted);font-size:15px;margin-top:4px}
-.x{width:44px;height:44px;border-radius:50%;background:var(--cream);font-size:20px;flex:none}
-.m-body{padding:12px 24px 24px}
-.pick-note{font-weight:700;font-size:15px;color:var(--olive);margin-bottom:10px}
-.mpick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-.mp{min-height:52px;border-radius:var(--r-sm);background:#fff;box-shadow:inset 0 0 0 2px var(--sand);font-weight:700;font-size:15px;line-height:1.2;padding:6px}
-.mp small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
-.mp.on{background:var(--olive);color:var(--cream);box-shadow:none}
-.mp.on small{color:var(--sage-2)}
-.mp:disabled{opacity:.45;background:var(--cream)}
-.total-row{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-radius:var(--r-md);background:var(--cream);margin-bottom:16px}
-.total-row b{font-family:var(--display);font-size:26px;color:var(--olive)}
-.qris{background:#fff;border-radius:var(--r-md);padding:20px;text-align:center;box-shadow:inset 0 0 0 2px var(--sand)}
-.qris-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.qris-top b{font-family:var(--display);font-size:22px;letter-spacing:.06em}
-.sbx{font-size:12px;font-weight:700;background:var(--amber-bg);color:var(--amber);padding:4px 10px;border-radius:999px}
-.qr-box{position:relative;display:inline-block;padding:10px;background:#fff}
-.qr-box svg{display:block;width:240px;max-width:100%;height:auto;animation:pop .45s var(--ease)}
-.scanline{position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--sage),transparent);animation:scan 2.6s ease-in-out infinite}
-.qr-amount{font-family:var(--display);font-weight:800;font-size:34px;color:var(--olive);margin-top:8px}
-.timer{display:inline-block;margin-top:8px;font-weight:700;font-size:15px;background:var(--amber-bg);color:var(--amber);padding:6px 14px;border-radius:999px}
-.waiting{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:600;color:var(--muted);margin:16px 0}
-.waiting .spinner{width:18px;height:18px;border-width:2px;color:var(--sage)}
-.how{list-style:none;counter-reset:h;margin:4px 0 16px}
-.how li{display:flex;gap:12px;align-items:flex-start;padding:8px 0;font-size:16px}
-.how li::before{counter-increment:h;content:counter(h);flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--sage-3);color:var(--olive);font-weight:800;font-size:15px}
-.pay-link{display:block;text-align:center;font-size:15px;font-weight:700;color:var(--olive);margin-top:12px}
-.small-id{font-size:12px;color:var(--muted);text-align:center;margin-top:12px}
-.success{text-align:center;padding:8px 0}
-.success h3{font-size:30px;color:var(--olive);margin-top:8px}
-.check-anim{width:96px;height:96px;margin:0 auto}
-.check-anim circle{fill:var(--sage-3);stroke:var(--olive);stroke-width:4;stroke-dasharray:300;stroke-dashoffset:300;animation:draw .6s var(--ease) forwards}
-.check-anim path{fill:none;stroke:var(--olive);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:80;stroke-dashoffset:80;animation:draw .4s .5s var(--ease) forwards}
-.receipt{background:var(--cream);border-radius:var(--r-md);padding:8px 18px;margin:16px 0;text-align:left}
-.receipt div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed var(--sand);font-size:15px}
-.receipt div:last-child{border:none}
+/* QR */
+.qris-card{background:#fff;border-radius:22px;padding:18px;border:1.5px solid var(--sand);text-align:center;position:relative}
+.qris-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.qris-logo{font-weight:800;letter-spacing:.06em;font-size:18px;color:var(--olive)}
+.sbx{font-size:10px;font-weight:700;background:var(--amber-bg);color:var(--amber);padding:4px 8px;border-radius:7px}
+.qr-box{position:relative;width:220px;height:220px;margin:6px auto 10px}
+.qr-box svg{width:100%;height:100%}
+.qr-box .scanline{position:absolute;left:4%;right:4%;height:3px;background:linear-gradient(90deg,transparent,var(--sage),transparent);box-shadow:0 0 12px var(--sage);animation:scan 2.4s ease-in-out infinite;border-radius:2px}
+.qr-box rect.mod{opacity:0;animation:fadeIn .4s forwards}
+.qr-merchant{font-size:13px;color:var(--muted)}
+.qr-amount{font-size:28px;font-weight:800;color:var(--olive);margin:2px 0}
+.timer{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--amber);background:var(--amber-bg);padding:6px 12px;border-radius:99px;margin-top:6px}
+.waiting{display:flex;align-items:center;gap:10px;justify-content:center;font-size:14px;color:var(--muted);margin:16px 0 4px}
+.dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--sage);margin:0 2px;animation:float 1s infinite}
+.dots span:nth-child(2){animation-delay:.15s}.dots span:nth-child(3){animation-delay:.3s}
+.mini-steps{display:flex;flex-direction:column;gap:8px;margin:16px 0;font-size:13px}
+.mini-steps div{display:flex;gap:10px;align-items:center}
+.mini-steps b{width:22px;height:22px;border-radius:50%;background:var(--sand);display:grid;place-items:center;font-size:11px;flex:none;color:var(--olive)}
+.sim-box{border:1.5px dashed var(--amber);border-radius:16px;padding:12px;background:var(--amber-bg);font-size:12px;color:#6b5320;margin-top:14px}
+.sim-box .btn{margin-top:8px}
+.spinner{width:56px;height:56px;border-radius:50%;border:5px solid var(--sand);border-top-color:var(--olive);animation:spin .9s linear infinite;margin:30px auto 16px}
+.success{text-align:center;padding:10px 0}
+.check{width:110px;height:110px;margin:6px auto 10px}
+.check circle{fill:var(--sage);transform-origin:center;animation:pop .5s var(--ease)}
+.check path{fill:none;stroke:var(--olive-3);stroke-width:7;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:80;stroke-dashoffset:80;animation:draw .5s .35s var(--ease) forwards}
+.success h3{font-size:28px}
+.receipt{margin:16px 0;text-align:left;background:var(--cream);border-radius:16px;padding:14px 16px;font-size:13px}
+.receipt div{display:flex;justify-content:space-between;padding:5px 0}
 .receipt span{color:var(--muted)}
-.cred{background:var(--olive);color:var(--cream);border-radius:var(--r-md);padding:18px 20px;margin:12px 0}
-.cred div{display:flex;justify-content:space-between;padding:6px 0;font-size:16px}
-.cred b{color:#fff}
+.month-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 4px}
+.mp{padding:10px 6px;border-radius:12px;border:1.5px solid var(--sand);font-size:13px;font-weight:600;transition:all .2s}
+.mp.on{background:var(--olive);color:var(--cream);border-color:var(--olive)}
+.mp:disabled{opacity:.35;cursor:not-allowed}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin:14px 0;padding:14px 16px;border-radius:16px;background:var(--cream)}
+.total-row b{font-size:22px;color:var(--olive)}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg label{padding:12px;border-radius:14px;border:1.5px solid var(--sand);text-align:center;font-weight:600;font-size:14px;cursor:pointer;transition:all .2s}
+.seg input{display:none}
+.seg input:checked+label{background:var(--olive);color:var(--cream);border-color:var(--olive)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-/* ---------- tur pengguna baru ---------- */
-.tour-on{position:relative;z-index:71!important;box-shadow:0 0 0 4px var(--sage),0 0 0 100vmax rgba(42,43,22,.62)!important;border-radius:var(--r-lg);transition:box-shadow .3s}
-.tour-shield{position:fixed;inset:0;z-index:70}
-.tour-card{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:72;width:min(520px,calc(100vw - 24px));background:var(--paper);border-radius:var(--r-lg);padding:24px;box-shadow:0 30px 60px -20px rgba(0,0,0,.5);animation:rise .3s var(--ease)}
-.tour-card .stepn{font-size:14px;font-weight:700;color:var(--muted)}
-.tour-card h3{font-size:26px;color:var(--olive);margin:4px 0 8px}
-.tour-card p{font-size:17px;color:var(--ink)}
-.tour-dots{display:flex;gap:6px;margin:16px 0}
-.tour-dots i{height:6px;flex:1;border-radius:9px;background:var(--sand)}
-.tour-dots i.on{background:var(--olive)}
-.tour-acts{display:flex;gap:10px;justify-content:space-between;align-items:center}
-.tour-acts .skip{font-weight:700;color:var(--muted);font-size:15px;padding:10px 4px}
+/* toast */
+#toasts{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center}
+.toast{background:var(--olive-3);color:var(--cream);padding:12px 18px;border-radius:14px;font-size:14px;box-shadow:var(--shadow-lg);animation:fadeUp .4s var(--ease);display:flex;gap:8px;align-items:center}
+.toast.out{transition:all .35s;opacity:0;transform:translateY(10px)}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:90}
+footer{text-align:center;font-size:12px;color:var(--muted);padding:20px}
+footer button{text-decoration:underline;color:var(--olive);font-size:12px}
 
-/* ---------- lain-lain ---------- */
-#toasts{position:fixed;top:84px;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:8px;width:min(480px,calc(100vw - 24px))}
-.toast{background:var(--olive-3);color:var(--cream);padding:14px 18px;border-radius:var(--r-md);font-weight:600;font-size:16px;display:flex;gap:12px;align-items:center;animation:rise .3s var(--ease);box-shadow:0 20px 40px -16px rgba(0,0,0,.5)}
-.toast.out{opacity:0;transition:opacity .4s}
-#confetti{position:fixed;inset:0;pointer-events:none;z-index:95}
+/* responsive */
+@media (max-width:900px){
+  #login{grid-template-columns:1fr}
+  .login-art{padding:32px 24px;min-height:auto}
+  .house{max-width:300px}
+  .hero{grid-template-columns:1fr;padding:24px}
+  .stats{grid-template-columns:1fr 1fr}
+  .two-col{grid-template-columns:1fr}
+  .steps{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .stats{grid-template-columns:1fr}
+  .user-chip .who{display:none}
+  main{padding:20px 16px 70px}
+  .tabs{width:100%;overflow-x:auto}
+  .tab{padding:10px 12px;font-size:13px;white-space:nowrap}
+}
+
+/* ---------- tambahan versi asli ---------- */
 .boot{min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px}
-.boot h2{font-size:30px;color:var(--olive);margin-bottom:8px}
-.boot p{color:var(--muted);max-width:46ch;margin:auto}
-.boot .spinner{color:var(--sage);width:34px;height:34px;margin-bottom:12px}
-footer.app-foot{text-align:center;color:var(--muted);font-size:14px;padding:24px 0 40px}
+.boot .spinner{margin:0 auto 16px}
+.boot h2{font-size:28px;margin-bottom:8px}
+.boot p{color:var(--muted);max-width:46ch;line-height:1.6;margin:auto}
+.notice{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:14px 18px;border-radius:18px;margin-bottom:18px;font-size:14px;animation:fadeUp .5s var(--ease)}
+.notice.warn{background:var(--amber-bg);color:#6b5320;border:1px solid #e6cf92}
+.notice.info{background:var(--sage-2);color:var(--olive)}
+.qr-box svg{display:block;border-radius:8px}
+.qr-box .qr-fade{animation:pop .5s var(--ease)}
+.pay-link{display:block;text-align:center;font-size:13px;font-weight:600;color:var(--olive);margin-top:10px;text-decoration:underline}
+a.btn{text-decoration:none}
+.login-note{margin-top:22px;padding:14px 16px;border-radius:16px;background:var(--sand);font-size:13px;line-height:1.6;color:var(--olive)}
+.btn[disabled]{opacity:.55;pointer-events:none}
+.btn .spinner{width:18px;height:18px;border-width:3px;margin:0}
 
-@media (max-width:960px){
-  .g-hero .wrap,.g-login .wrap{grid-template-columns:1fr;gap:36px}
-  .steps{grid-template-columns:1fr 1fr}
-  .months{grid-template-columns:repeat(4,1fr)}
-  .facts{grid-template-columns:1fr 1fr}
-  .two{grid-template-columns:1fr}
-  .sum{grid-template-columns:1fr 1fr}
-  .sum .main{grid-column:1/-1}
-  .status{grid-template-columns:1fr}
-  .status .pay{min-width:0}
-}
-@media (max-width:600px){
-  body{font-size:16px}
-  .wrap{padding:0 16px}
-  .g-hero{padding:32px 0 48px}
-  .g-sec{padding:52px 0}
-  .steps,.owner-feats{grid-template-columns:1fr}
-  .months{grid-template-columns:repeat(2,1fr)}
-  .demo-grid{grid-template-columns:repeat(3,1fr)}
-  .status{padding:24px}
-  .sum{grid-template-columns:1fr}
-  .who{display:none}
-  .row2{grid-template-columns:1fr}
-  .login-card{padding:24px}
-  .top-acts .btn-sm{padding:0 12px}
-  .mtile{min-height:132px}
-  .mtile.t-none{display:none}
-}
+/* ---------- pasang aplikasi (PWA) ---------- */
+.install-btn{display:inline-flex;align-items:center;gap:6px}
+.is-standalone .install-only{display:none!important}
+.os-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--cream);padding:5px;border-radius:14px;margin-bottom:16px}
+.os-tabs button{padding:10px;border-radius:10px;font-weight:600;font-size:14px;color:var(--muted);transition:all .25s}
+.os-tabs button.on{background:var(--olive);color:var(--cream)}
+.howto{display:flex;flex-direction:column;gap:10px}
+.howto .hs{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:14px;background:var(--cream);animation:fadeUp .45s var(--ease) both}
+.howto .hs b.n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--olive);color:var(--cream);display:grid;place-items:center;font-size:12px}
+.howto .hs span{font-size:14px;line-height:1.5}
+.kbd{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:8px;background:var(--paper);border:1px solid var(--sand);font-weight:700;font-size:13px;white-space:nowrap}
+.app-preview{display:flex;align-items:center;gap:14px;padding:14px;border-radius:18px;background:var(--olive);color:var(--cream);margin-bottom:16px}
+.app-preview img{width:56px;height:56px;border-radius:14px;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.app-preview small{display:block;opacity:.75;font-size:12px}
+@media (max-width:520px){ .install-btn .lbl{display:none} }
 </style>
 </head>
 <body>
 
-<!-- ============ SVG simbol: biji kopi ============ -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="bean" viewBox="0 0 40 40">
-      <ellipse cx="20" cy="20" rx="12" ry="17" transform="rotate(-32 20 20)" style="fill:var(--bf);stroke:var(--bs);stroke-width:3;stroke-dasharray:var(--bd)"/>
-      <path d="M27.5 7.6C20 13 25 21 18.5 26.5C15.5 29 13.5 31 12.6 32.4" style="fill:none;stroke:var(--cs);stroke-width:3;stroke-linecap:round"/>
-    </symbol>
-  </defs>
-</svg>
+<!-- ======================= MEMUAT ======================= -->
+<section id="boot" class="boot"><div><div class="spinner"></div><p>Memuat…</p></div></section>
 
-<section id="boot" class="boot"><div><span class="spinner"></span><p>Sebentar, sedang memuat…</p></div></section>
-
-<!-- ======================= PANDUAN + MASUK ======================= -->
-<section id="guide" class="hidden">
-  <header class="g-top"><div class="wrap">
-    <a class="brand" href="#top" aria-label="Coffee Kos"><svg viewBox="0 0 64 64" aria-hidden="true"><ellipse class="logo-bean" cx="32" cy="32" rx="19" ry="27" transform="rotate(-32 32 32)"/><path class="logo-crease" d="M44 11.5C32 20 40 33 30 42C25 46 21.5 49.5 20.2 51.8"/></svg><span class="kos-name">Coffee Kos</span></a>
-    <div style="display:flex;gap:8px"><button type="button" class="btn btn-light btn-sm hidden" data-install>Pasang aplikasi</button><a class="btn btn-primary btn-sm" href="#masuk">Masuk</a></div>
-  </div></header>
-
-  <div id="top" class="g-hero"><div class="wrap">
+<!-- ======================= LOGIN ======================= -->
+<section id="login" class="hidden">
+  <div class="login-art">
     <div>
-      <h1>Cek tagihan dan bayar kos langsung dari HP.</h1>
-      <p class="lead">Halaman ini menjelaskan cara memakai website <span class="kos-name">Coffee Kos</span> pelan-pelan. Baca sebentar, lalu masuk di bagian paling bawah.</p>
-      <div class="cta">
-        <a class="btn btn-primary btn-big" href="#cara-bayar">Lihat cara bayar</a>
-        <a class="btn btn-light btn-big" href="#masuk">Saya sudah paham, masuk</a>
-      </div>
+      <div class="brand reveal"><span class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
+      </span><span class="kos-name">KosanKu</span></div>
+      <h1 class="reveal" style="--i:1">Bayar kos jadi <em>tenang</em>, tanpa tanya-tanya.</h1>
+      <p class="reveal" style="--i:2">Scan QRIS, bayar, selesai. Status pembayaran langsung tercatat otomatis, jadi anak kos, orang tua, dan pemilik kos sama-sama bisa melihatnya.</p>
     </div>
-    <div class="demo" aria-label="Contoh tampilan halaman anak kos">
-      <div class="demo-cap"><i></i>Contoh tampilan setelah masuk</div>
-      <div class="demo-alert"><b>Belum dibayar: 2 bulan</b><span>Oktober dan November. Totalnya Rp1.000.000.</span></div>
-      <div class="demo-grid" id="demoGrid"></div>
-      <span class="btn btn-primary btn-block demo-btn">Bayar Rp1.000.000 sekarang</span>
+    <div class="reveal" style="--i:3"><svg class="house" viewBox="0 0 400 260" aria-hidden="true">
+      <rect x="20" y="236" width="360" height="6" rx="3" fill="#2E2F17"/>
+      <path d="M60 110 L200 30 L340 110 Z" fill="#B0B98A"/>
+      <rect x="70" y="108" width="260" height="130" rx="6" fill="#DFDABB"/>
+      <rect x="180" y="185" width="40" height="53" rx="5" fill="#434423"/>
+      <circle cx="212" cy="212" r="2.5" fill="#B0B98A"/>
+      <g id="houseWindows"></g>
+      <rect x="250" y="44" width="22" height="40" fill="#5B5E34"/>
+    </svg></div>
+    <div class="login-feat reveal" style="--i:4">
+      <span><i></i>QRIS otomatis</span><span><i></i>Status real-time</span><span><i></i>Mudah untuk orang tua</span>
     </div>
-  </div></div>
+  </div>
 
-  <section class="g-sec" id="cara-bayar"><div class="wrap">
-    <h2>Cara bayar kos</h2>
-    <p class="intro">Tidak perlu transfer manual atau kirim bukti bayar. Cukup empat langkah ini.</p>
-    <ol class="steps">
-      <li><b>Masuk ke website</b><span>Pakai username dan password yang diberikan pemilik kos. Contoh username: kamar1.</span></li>
-      <li><b>Tekan "Bayar sekarang"</b><span>Tombolnya ada paling atas. Bulan yang belum dibayar sudah otomatis dipilihkan.</span></li>
-      <li><b>Scan kode QRIS</b><span>Buka aplikasi bank atau dompet digital (BCA, BRI, Mandiri, GoPay, DANA, OVO, ShopeePay), pilih Scan, lalu arahkan ke kode.</span></li>
-      <li><b>Selesai, tercatat lunas</b><span>Beberapa detik setelah bayar, layar berubah jadi "Pembayaran berhasil" dan bulannya tertulis lunas.</span></li>
-    </ol>
-  </div></section>
-
-  <section class="g-sec" id="cara-cek"><div class="wrap">
-    <h2>Cara melihat bulan yang belum dibayar</h2>
-    <p class="intro">Setiap bulan ditandai dengan biji kopi. Biji yang terisi penuh berarti sudah beres.</p>
-    <div class="legend-big">
-      <div><svg class="bean s-lunas"><use href="#bean"/></svg><p><b>Lunas</b><span>Sudah dibayar lewat QRIS.</span></p></div>
-      <div><svg class="bean s-manual"><use href="#bean"/></svg><p><b>Lunas tunai</b><span>Sudah dibayar langsung ke pemilik kos.</span></p></div>
-      <div><svg class="bean s-belum"><use href="#bean"/></svg><p><b>Belum dibayar</b><span>Tagihan bulan ini yang masih menunggu.</span></p></div>
-      <div><svg class="bean s-telat"><use href="#bean"/></svg><p><b>Terlambat</b><span>Bulan yang sudah lewat tapi belum dibayar.</span></p></div>
-      <div><svg class="bean s-next"><use href="#bean"/></svg><p><b>Bulan depan</b><span>Belum waktunya, tapi boleh dibayar lebih awal.</span></p></div>
-    </div>
-    <p class="tip">Tidak perlu menghitung sendiri. Kotak paling atas setelah masuk selalu menuliskan bulan apa saja yang belum dibayar beserta totalnya.</p>
-  </div></section>
-
-  <section class="g-sec" id="pasang"><div class="wrap">
-    <h2>Pasang di HP seperti aplikasi</h2>
-    <p class="intro">Supaya tidak perlu mengetik alamat website setiap kali, pasang <span class="kos-name">Coffee Kos</span> di layar utama HP. Ukurannya sangat kecil dan tidak perlu lewat Play Store.</p>
-    <div class="install">
-      <img src="/icons/icon-192.png" alt="Ikon aplikasi Coffee Kos" width="112" height="112">
-      <div>
-        <h3>Ikon biji kopi muncul di layar HP</h3>
-        <p>Setelah dipasang, cukup tekan ikonnya. Website terbuka layar penuh seperti aplikasi biasa, dan selalu memakai versi terbaru.</p>
-        <div id="installArea"></div>
-      </div>
-    </div>
-  </div></section>
-
-  <section class="g-sec" id="pemilik"><div class="wrap">
-    <h2>Untuk pemilik kos</h2>
-    <p class="intro">Pemilik kos masuk lewat tempat yang sama dengan username khusus pemilik.</p>
-    <div class="owner-feats">
-      <div><b>Tercentang otomatis</b><span>Begitu anak kos bayar lewat QRIS, bulan itu langsung tercentang lunas di halaman pemilik. Tidak perlu cek mutasi rekening.</span></div>
-      <div><b>Ganti penghuni</b><span>Kalau penghuni pindah, tekan "Ganti penghuni". Akun kamar kembali seperti baru dan riwayat lama tetap tersimpan.</span></div>
-      <div><b>Tanggal mulai ngekos</b><span>Isi tanggal penghuni mulai tinggal. Tagihan dihitung mulai bulan itu, dan jatuh temponya mengikuti tanggal tersebut.</span></div>
-      <div><b>Unduh rekap</b><span>Rekap siapa saja yang sudah dan belum bayar bisa diunduh dan dibuka di Excel.</span></div>
-    </div>
-  </div></section>
-
-  <section class="g-sec" id="tanya"><div class="wrap">
-    <h2>Pertanyaan yang sering muncul</h2>
-    <div class="faq">
-      <details><summary>Saya lupa password. Bagaimana?</summary><p>Hubungi pemilik kos. Pemilik bisa mengembalikan password kamarmu ke password awal, lalu kamu bisa masuk dan menggantinya lagi.</p></details>
-      <details><summary>Sudah bayar, tapi statusnya belum lunas.</summary><p>Tunggu 1–2 menit lalu muat ulang halaman. Status diperiksa langsung ke Duitku. Kalau setelah 10 menit masih belum berubah, kirim bukti bayar ke pemilik kos.</p></details>
-      <details><summary>Bisa bayar beberapa bulan sekaligus?</summary><p>Bisa. Di layar pembayaran, pilih semua bulan yang mau dibayar. Totalnya dihitung otomatis dalam satu kode QRIS.</p></details>
-      <details><summary>Orang tua bisa membayarkan dari jauh?</summary><p>Bisa. Di layar QRIS ada tombol "Kirim tagihan ke orang tua" yang membuka WhatsApp berisi link pembayaran.</p></details>
-      <details><summary>Kode QRIS-nya kedaluwarsa.</summary><p>Setiap kode berlaku 15 menit. Kalau lewat, tutup layar itu lalu tekan "Bayar sekarang" lagi untuk mendapatkan kode baru.</p></details>
-    </div>
-  </div></section>
-
-  <section class="g-login" id="masuk"><div class="wrap">
-    <div>
-      <h2>Sudah siap? Masuk di sini.</h2>
-      <p class="intro">Anak kos dan pemilik kos masuk lewat tempat yang sama. Setelah masuk pertama kali, ada panduan singkat di layar.</p>
-    </div>
+  <div class="login-form-wrap">
     <div class="login-card" id="loginCard">
-      <div class="field">
+      <h2 class="reveal">Selamat datang 👋</h2>
+      <p class="sub reveal" style="--i:1">Masuk pakai username dan password dari pemilik kos.</p>
+      <div class="field reveal" style="--i:2">
         <label for="lu">Username</label>
         <input class="input" id="lu" placeholder="contoh: kamar1" autocomplete="username" autocapitalize="none" spellcheck="false">
       </div>
-      <div class="field">
+      <div class="field reveal" style="--i:3">
         <label for="lp">Password</label>
         <div class="pw-wrap">
-          <input class="input" id="lp" type="password" autocomplete="current-password">
+          <input class="input" id="lp" type="password" placeholder="••••••" autocomplete="current-password">
           <button type="button" class="pw-toggle" id="pwToggle">Lihat</button>
         </div>
       </div>
-      <div class="err" id="loginErr" role="alert"></div>
-      <button class="btn btn-primary btn-big btn-block" type="button" id="loginBtn">Masuk</button>
-      <p class="note">Belum punya username atau lupa password? Tanyakan ke pemilik kos.</p>
+      <div class="err" id="loginErr"></div>
+      <button class="btn btn-primary btn-block reveal" style="--i:4" type="button" id="loginBtn">Masuk</button>
+      <div class="login-note reveal" style="--i:5">Lupa password? Minta pemilik kos untuk mereset password kamarmu.</div>
+      <button type="button" class="btn btn-ghost btn-block reveal install-only" style="--i:6;margin-top:12px" data-install>📲 Pasang aplikasi di HP</button>
     </div>
-  </div></section>
-  <footer class="g-foot"><span class="kos-name">Coffee Kos</span>. Pembayaran QRIS diproses oleh Duitku.</footer>
+  </div>
 </section>
 
-<!-- ======================= APLIKASI ======================= -->
+<!-- ======================= APP ======================= -->
 <section id="app" class="hidden">
-  <div class="sandbox-bar hidden" id="sandboxBar">Mode uji coba Duitku: pembayaran belum memakai uang sungguhan.</div>
-  <header class="topbar"><div class="wrap">
-    <span class="brand"><svg viewBox="0 0 64 64" aria-hidden="true"><ellipse class="logo-bean" cx="32" cy="32" rx="19" ry="27" transform="rotate(-32 32 32)"/><path class="logo-crease" d="M44 11.5C32 20 40 33 30 42C25 46 21.5 49.5 20.2 51.8"/></svg><span class="kos-name">Coffee Kos</span></span>
-    <div class="top-acts">
-      <div class="who"><b id="whoName"></b><small id="whoRole"></small></div>
-      <button class="btn btn-light btn-sm" id="tourBtn" type="button">Panduan</button>
-      <button class="btn btn-sage btn-sm" id="logoutBtn" type="button">Keluar</button>
+  <div class="sandbox-bar hidden" id="sandboxBar">🧪 <b>Mode Sandbox Duitku</b>: pembayaran masih uji coba dan belum ada uang sungguhan yang berpindah.</div>
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="brand"><span class="brand-mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-5h4v5"/></svg>
+      </span><span class="kos-name">KosanKu</span></div>
+      <div class="user-chip">
+        <div class="who" style="text-align:right"><b id="whoName"></b><small id="whoRole"></small></div>
+        <div class="avatar" id="whoAvatar"></div>
+        <button class="btn btn-sage btn-sm install-btn install-only" type="button" data-install title="Pasang aplikasi di HP">📲<span class="lbl">Pasang app</span></button>
+        <button class="btn btn-ghost btn-sm" id="logoutBtn" type="button">Keluar</button>
+      </div>
     </div>
-  </div></header>
-  <main><div class="wrap" id="view"></div></main>
-  <footer class="app-foot"><span class="kos-name">Coffee Kos</span>. Pembayaran QRIS diproses oleh Duitku.</footer>
+  </header>
+  <main id="view"></main>
+  <footer><span class="kos-name">KosanKu</span> · pembayaran QRIS diproses oleh Duitku</footer>
 </section>
 
 <div id="modalRoot"></div>
-<div id="tourRoot"></div>
-<div id="toasts" aria-live="polite"></div>
+<div id="toasts"></div>
 <canvas id="confetti"></canvas>
 
 <script>
@@ -547,7 +434,7 @@ footer.app-foot{text-align:center;color:var(--muted);font-size:14px;padding:24px
    ========================================================= */
 const BULAN = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 const BULAN_PANJANG = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-let CFG = { kosName:"Coffee Kos", dueDay:10, currentMonth:null, duitkuEnv:"sandbox", duitkuReady:false };
+let CFG = { kosName:"KosanKu", dueDay:10, currentMonth:null, duitkuEnv:"sandbox", duitkuReady:false };
 let CUR = null;
 
 const keyOf = (y,m) => `${y}-${String(m+1).padStart(2,"0")}`;
@@ -558,107 +445,106 @@ const shortM = k => { const p=parts(k); return `${BULAN[p.m]} ${p.y}`; };
 const rupiah = n => "Rp" + Number(n||0).toLocaleString("id-ID");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmtDate = iso => new Date(iso).toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
-const fmtTanggal = d => d ? new Date(d+"T00:00:00").toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"}) : "-";
-const todayISO = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
 const $ = s => document.querySelector(s);
-const bean = (s, extra="") => `<svg class="bean s-${s} ${extra}" aria-hidden="true"><use href="#bean"/></svg>`;
-/* gabungkan daftar bulan jadi kalimat: "Oktober dan November 2026" */
-function joinMonths(keys){
-  const names = keys.map(labelM);
-  if(names.length<=1) return names.join("");
-  return names.slice(0,-1).join(", ") + " dan " + names[names.length-1];
-}
-/* jatuh tempo: mengikuti tanggal mulai ngekos, kalau belum diisi pakai pengaturan umum */
-const dueDayOf = room => room.startDate ? Number(room.startDate.slice(8,10)) : CFG.dueDay;
-function dueDateText(room, k){
-  const p=parts(k), last=new Date(p.y,p.m+1,0).getDate(), d=Math.min(dueDayOf(room), last);
-  return `${d} ${BULAN_PANJANG[p.m]} ${p.y}`;
-}
-const store = { get(k){ try{ return localStorage.getItem(k); }catch(_){ return null; } }, set(k,v){ try{ localStorage.setItem(k,v); }catch(_){} } };
+const wait = ms => new Promise(r=>setTimeout(r,ms));
 
+/* Panggil API server */
 async function api(path, { method="GET", body } = {}){
   let r;
   try{
     r = await fetch("/api/"+path, { method, credentials:"same-origin",
       headers: body ? {"Content-Type":"application/json"} : {}, body: body ? JSON.stringify(body) : undefined });
-  }catch(e){ const err = new Error("Tidak bisa terhubung ke server. Periksa koneksi internet, lalu coba lagi."); err.network = true; throw err; }
+  }catch(e){ const err = new Error("Tidak bisa terhubung ke server. Cek koneksi internet."); err.network = true; throw err; }
   let data = {};
-  try{ data = await r.json(); }catch(e){ if(!r.ok){ const err=new Error("Server tidak merespons dengan benar. Coba lagi sebentar lagi."); err.network=true; throw err; } }
+  try{ data = await r.json(); }catch(e){ if(!r.ok){ const err=new Error("Server tidak merespons dengan benar."); err.network=true; throw err; } }
   if(!r.ok){ const err = new Error(data.error || "Terjadi kesalahan."); err.status = r.status; err.detail = data.detail; throw err; }
   return data;
 }
+/* Kalau gagal memuat dashboard, tampilkan layar error (bukan loading terus) */
 function bootError(e){
   show("#boot");
-  $("#boot").innerHTML = `<div><h2>Data belum bisa dimuat</h2><p>${esc(e.message)}</p>
+  $("#boot").innerHTML = `<div><h2>Gagal memuat data</h2><p>${esc(e.message)}</p>
     ${e.detail ? `<pre style="margin:14px auto 0;max-width:560px;white-space:pre-wrap;text-align:left;font-size:12px;background:var(--sand);padding:12px;border-radius:12px">${esc(e.detail)}</pre>` : ""}
-    <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap">
-      <button class="btn btn-primary" type="button" onclick="location.reload()">Muat ulang</button>
-      <button class="btn btn-light" type="button" id="bootLogout">Keluar</button></div></div>`;
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:18px">
+      <button class="btn btn-primary" type="button" onclick="location.reload()">Coba lagi</button>
+      <button class="btn btn-ghost" type="button" id="bootLogout">Keluar</button></div></div>`;
   $("#bootLogout").onclick = async () => { try{ await api("auth?action=logout",{method:"POST"}); }catch(_){} location.reload(); };
 }
 function handleErr(e){
-  if(e.status===401){ toast("Kamu perlu masuk lagi."); return showGuide(true); }
-  toast(e.message || "Terjadi kesalahan.");
+  if(e.status===401){ toast("Sesi berakhir, silakan login lagi","🔒"); return showLogin(); }
+  toast(e.message || "Terjadi kesalahan","⚠️");
 }
+
+/* Form tanpa <form> submit (supaya jalan di semua browser/preview): Enter = klik tombol */
 function bindEnter(container, btn){
   container.querySelectorAll("input, select").forEach(i => i.addEventListener("keydown", e => { if(e.key==="Enter"){ e.preventDefault(); btn.click(); } }));
 }
 function vals(container){
-  const o={}; container.querySelectorAll("[name]").forEach(i => { if(i.type==="radio"){ if(i.checked) o[i.name]=i.value; } else if(i.type==="checkbox") o[i.name]=i.checked; else o[i.name]=i.value; }); return o;
+  const o={}; container.querySelectorAll("[name]").forEach(i => { if(i.type==="radio"){ if(i.checked) o[i.name]=i.value; } else o[i.name]=i.value; }); return o;
 }
 async function busy(btn, fn){
   if(btn.disabled) return;
   const html = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
-  try{ return await fn(); } finally { if(btn.isConnected){ btn.disabled = false; btn.innerHTML = html; } }
-}
-function toast(msg, ms=3500){
-  const t = document.createElement("div"); t.className="toast"; t.textContent=msg;
-  $("#toasts").appendChild(t);
-  setTimeout(()=>{ t.classList.add("out"); setTimeout(()=>t.remove(),400); }, ms);
+  try{ return await fn(); } finally { btn.disabled = false; btn.innerHTML = html; }
 }
 
-/* ---------- modal ---------- */
+/* toast */
+function toast(msg, icon="✓"){
+  const t = document.createElement("div"); t.className="toast"; t.innerHTML=`<span>${icon}</span>${esc(msg)}`;
+  $("#toasts").appendChild(t);
+  setTimeout(()=>{ t.classList.add("out"); setTimeout(()=>t.remove(),400); }, 3000);
+}
+
+/* modal */
 let modalCleanup = null;
 function openModal(html, cls=""){
   if(modalCleanup){ modalCleanup(); modalCleanup=null; }
   const root = $("#modalRoot");
-  root.innerHTML = `<div class="overlay"><div class="modal ${cls}" role="dialog" aria-modal="true">${html}</div></div>`;
+  root.innerHTML = `<div class="overlay"><div class="modal ${cls}">${html}</div></div>`;
   const ov = root.firstElementChild;
   ov.addEventListener("mousedown", e => { if(e.target===ov) closeModal(); });
   ov.querySelectorAll("[data-close]").forEach(b=>b.onclick=closeModal);
-  const f = ov.querySelector("input,button:not(.x)"); if(f && f.tagName==="INPUT") setTimeout(()=>f.focus(),80);
   return ov.querySelector(".modal");
 }
 function closeModal(){
   if(modalCleanup){ modalCleanup(); modalCleanup=null; }
   const ov = $("#modalRoot .overlay"); if(!ov) return;
-  ov.style.transition="opacity .2s"; ov.style.opacity="0";
-  setTimeout(()=>{ if($("#modalRoot .overlay")===ov) $("#modalRoot").innerHTML=""; },200);
+  ov.style.transition="opacity .25s"; ov.style.opacity="0";
+  setTimeout(()=>{ if($("#modalRoot .overlay")===ov) $("#modalRoot").innerHTML=""; },250);
 }
-document.addEventListener("keydown", e => { if(e.key==="Escape"){ if($("#tourRoot").innerHTML) endTour(); else closeModal(); } });
-function confirmBox(title, text, okLabel, danger=false){
+document.addEventListener("keydown", e => { if(e.key==="Escape") closeModal(); });
+function confirmBox(title, text, okLabel="Ya, lanjutkan", danger=false){
   return new Promise(resolve => {
     const m = openModal(`
-      <div class="m-head"><div><h3>${esc(title)}</h3></div><button class="x" data-close aria-label="Tutup">✕</button></div>
-      <div class="m-body"><p style="color:var(--muted);margin-bottom:20px">${text}</p>
-        <div class="row2"><button class="btn btn-light" id="cNo" type="button">Batal</button>
-        <button class="btn ${danger?"btn-danger":"btn-primary"}" id="cYes" type="button">${esc(okLabel)}</button></div></div>`);
+      <div class="modal-head"><div><h3>${esc(title)}</h3></div><button class="x" data-close>✕</button></div>
+      <div class="modal-body"><p style="color:var(--muted);line-height:1.6;margin-bottom:18px">${text}</p>
+        <div class="row2"><button class="btn btn-ghost" id="cNo" type="button">Batal</button>
+        <button class="btn btn-primary" id="cYes" type="button" ${danger?'style="background:var(--rust)"':""}>${esc(okLabel)}</button></div></div>`);
     let done=false; const fin=v=>{ if(done) return; done=true; resolve(v); };
     modalCleanup = () => fin(false);
     m.querySelector("#cNo").onclick=()=>closeModal();
     m.querySelector("#cYes").onclick=()=>{ modalCleanup=null; fin(true); closeModal(); };
   });
 }
+
+function countUp(el, to, fmt = v=>Math.round(v)){
+  const dur=1100, t0=performance.now();
+  const step = t => { const p=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-p,3); el.textContent = fmt(to*e); if(p<1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+async function copyText(text){
+  try{ await navigator.clipboard.writeText(text); return true; }
+  catch(e){ const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); let ok=false; try{ok=document.execCommand("copy");}catch(_){} ta.remove(); return ok; }
+}
 function confetti(){
   const c=$("#confetti"), ctx=c.getContext("2d");
-  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   c.width=innerWidth; c.height=innerHeight;
   const cols=["#434423","#B0B98A","#DFDABB","#5B5E34","#CDD3AE"];
-  const ps = Array.from({length:120},()=>({x:innerWidth/2,y:innerHeight/2-40,vx:(Math.random()-.5)*16,vy:Math.random()*-15-4,s:Math.random()*8+5,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.floor(Math.random()*cols.length)]}));
+  const ps = Array.from({length:140},()=>({x:innerWidth/2,y:innerHeight/2-40,vx:(Math.random()-.5)*16,vy:Math.random()*-15-4,s:Math.random()*8+4,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:cols[Math.floor(Math.random()*cols.length)]}));
   let f=0;
   (function loop(){
     ctx.clearRect(0,0,c.width,c.height);
-    ps.forEach(p=>{p.vy+=.45;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.beginPath();ctx.ellipse(0,0,p.s/2,p.s/3,0,0,Math.PI*2);ctx.fill();ctx.restore();});
+    ps.forEach(p=>{p.vy+=.45;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);ctx.restore();});
     if(++f<170) requestAnimationFrame(loop); else ctx.clearRect(0,0,c.width,c.height);
   })();
 }
@@ -667,7 +553,7 @@ function confetti(){
    STATUS BULAN
    ========================================================= */
 function statusOf(room, payMap, k){
-  if(!room.startMonth || k < room.startMonth) return "none";
+  if(room.startMonth && k < room.startMonth) return "none";
   const p = payMap[k];
   if(p) return p.method==="manual" ? "manual" : "lunas";
   if(k < CUR) return "telat";
@@ -675,10 +561,10 @@ function statusOf(room, payMap, k){
   return "next";
 }
 const isPaid = s => s==="lunas" || s==="manual";
-const STATUS_TEXT = { lunas:"Lunas", manual:"Lunas tunai", belum:"Belum dibayar", telat:"Terlambat", next:"Bulan depan", none:"Belum ngekos" };
 function unpaidKeys(room, payMap){ const out=[]; if(!room.startMonth) return out; for(let k=room.startMonth;k<=CUR;k=addM(k,1)) if(!isPaid(statusOf(room,payMap,k))) out.push(k); return out; }
 function nextBill(room, payMap){ const u=unpaidKeys(room,payMap); if(u.length) return u[0]; let k = room.startMonth && room.startMonth>CUR ? room.startMonth : CUR; while(isPaid(statusOf(room,payMap,k))) k=addM(k,1); return k; }
 function lastPaid(room, payMap){ let last=null; for(let k=room.startMonth||CUR;k<=addM(CUR,24);k=addM(k,1)){ if(isPaid(statusOf(room,payMap,k))) last=k; else if(k>=CUR) break; } return last; }
+/* gabungkan pembayaran per transaksi (satu QRIS bisa beberapa bulan) */
 function buildHistory(payments){
   const g = new Map();
   payments.forEach(p => {
@@ -688,139 +574,86 @@ function buildHistory(payments){
   });
   return [...g.values()].map(x=>(x.months.sort(),x)).sort((a,b)=>String(b.paidAt).localeCompare(String(a.paidAt)));
 }
-function legendHtml(){
-  return `<div class="legend">${["lunas","manual","belum","telat","next"].map(s=>`<span>${bean(s)}${STATUS_TEXT[s]}</span>`).join("")}</div>`;
-}
+const BADGE = {
+  lunas:'<span class="badge b-lunas">Lunas</span>',
+  manual:'<span class="badge b-lunas">Lunas · tunai</span>',
+  belum:'<span class="badge b-belum">Belum bayar</span>',
+  telat:'<span class="badge b-telat">Terlambat</span>',
+  next:'<span class="badge b-next">Mendatang</span>',
+  none:'<span class="badge b-none">Belum ngekos</span>',
+};
 
 /* =========================================================
    NAVIGASI
    ========================================================= */
-function show(id){ ["#boot","#guide","#app"].forEach(s=>$(s).classList.toggle("hidden", s!==id)); }
-function setWho(name, role){ $("#whoName").textContent=name; $("#whoRole").textContent=role; }
+function show(id){ ["#boot","#login","#app"].forEach(s=>$(s).classList.toggle("hidden", s!==id)); }
+function setWho(name, role){
+  $("#whoName").textContent=name; $("#whoRole").textContent=role;
+  $("#whoAvatar").textContent=String(name).trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+}
 function applyConfig(){
   CUR = CFG.currentMonth;
   document.querySelectorAll(".kos-name").forEach(e=>e.textContent=CFG.kosName);
   document.title = `${CFG.kosName} — Pembayaran Kos`;
   $("#sandboxBar").classList.toggle("hidden", !(CFG.duitkuReady && CFG.duitkuEnv==="sandbox"));
 }
+
 async function boot(){
   try{
     CFG = await api("auth?action=config"); applyConfig();
     const me = await api("auth?action=me");
     if(me.role==="owner") return openOwner();
     if(me.role==="tenant") return openTenant();
-    showGuide();
+    showLogin();
   }catch(e){
     $("#boot").innerHTML = `<div><h2>Server belum tersambung</h2><p>${esc(e.message)}</p>
-      <p style="margin-top:12px;font-size:14px">Halaman ini harus dibuka dari alamat website, bukan dibuka langsung sebagai file.</p>
-      <button class="btn btn-primary" style="margin-top:18px" onclick="location.reload()">Muat ulang</button></div>`;
+      <p style="margin-top:12px;font-size:13px">Halaman ini harus dibuka dari alamat website (Vercel) atau dari <code>node server.js</code>, bukan dibuka langsung sebagai file.</p>
+      <button class="btn btn-primary" style="margin-top:18px" onclick="location.reload()">Coba lagi</button></div>`;
   }
 }
 
 /* =========================================================
-   HALAMAN PANDUAN + MASUK
+   LOGIN
    ========================================================= */
-function showGuide(toLogin=false){
-  closeModal(); endTour(); stopTimers(); show("#guide");
-  // contoh tampilan: biji kopi "dipanggang" satu per satu
-  const demo = [["Jun","lunas"],["Jul","lunas"],["Agu","lunas"],["Sep","manual"],["Okt","telat"],["Nov","belum"]];
-  $("#demoGrid").innerHTML = demo.map(([m,s],i)=>`<div>${bean(s, isPaid(s)?"roast":"")}<span>${m}</span></div>`).join("");
-  $("#demoGrid").querySelectorAll(".roast").forEach((b,i)=>b.style.setProperty("--d",i));
-  if(toLogin) setTimeout(()=>{ $("#masuk").scrollIntoView({behavior:"smooth"}); $("#lu").focus({preventScroll:true}); },50);
-  else scrollTo(0,0);
+function showLogin(){
+  closeModal(); show("#login");
+  let w="";
+  for(let i=0;i<10;i++){ const col=i%5, row=Math.floor(i/5); if(row===1&&col===2) continue;
+    w+=`<rect class="win" fill="#5B5E34" x="${92+col*46}" y="${124+row*44}" width="28" height="26" rx="4" style="animation-delay:${i*.4}s"/>`; }
+  $("#houseWindows").innerHTML=w;
+  setTimeout(()=>$("#lu").focus(), 300);
 }
-$("#pwToggle").onclick = () => { const i=$("#lp"); i.type = i.type==="password"?"text":"password"; $("#pwToggle").textContent = i.type==="password"?"Lihat":"Tutup"; };
+$("#pwToggle").onclick = () => { const i=$("#lp"); i.type = i.type==="password"?"text":"password"; $("#pwToggle").textContent = i.type==="password"?"Lihat":"Sembunyi"; };
 bindEnter($("#loginCard"), $("#loginBtn"));
 $("#loginBtn").onclick = () => busy($("#loginBtn"), async () => {
   const username=$("#lu").value.trim(), password=$("#lp").value;
   const errEl=$("#loginErr");
-  if(!username || !password){ errEl.textContent="Isi username dan password dulu."; return shakeLogin(); }
+  if(!username || !password){ errEl.textContent="Isi username dan password dulu ya."; return shakeLogin(); }
   try{
     const r = await api("auth?action=login",{method:"POST",body:{username,password}});
     errEl.textContent=""; $("#lp").value="";
     if(r.role==="owner") openOwner(); else openTenant();
-    scrollTo(0,0);
-  }catch(e){ errEl.textContent = e.status===401 ? "Username atau password salah. Periksa lagi huruf besar-kecilnya." : e.message; shakeLogin(); }
+  }catch(e){ errEl.textContent = e.message; shakeLogin(); }
 });
 function shakeLogin(){ const f=$("#loginCard"); f.classList.remove("shake"); void f.offsetWidth; f.classList.add("shake"); }
-$("#logoutBtn").onclick = async () => { try{ await api("auth?action=logout",{method:"POST"}); }catch(e){} showGuide(true); toast("Kamu sudah keluar."); };
+$("#logoutBtn").onclick = async () => { try{ await api("auth?action=logout",{method:"POST"}); }catch(e){} stopTimers(); showLogin(); toast("Kamu sudah keluar","👋"); };
 
 let timers = [];
 function stopTimers(){ timers.forEach(clearInterval); timers=[]; }
 
 /* =========================================================
-   TUR PENGGUNA BARU
+   DASHBOARD ANAK KOS
    ========================================================= */
-let tour = null;
-function startTour(steps, key){
-  closeModal();
-  tour = { steps: steps.filter(s=>!s.sel || $(s.sel)), i:0, key };
-  drawTour();
-}
-function drawTour(){
-  document.querySelectorAll(".tour-on").forEach(e=>e.classList.remove("tour-on"));
-  const { steps, i } = tour, s = steps[i];
-  const el = s.sel ? $(s.sel) : null;
-  if(el){ el.classList.add("tour-on"); el.scrollIntoView({behavior:"smooth",block:"center"}); }
-  else scrollTo({top:0,behavior:"smooth"});
-  $("#tourRoot").innerHTML = `
-    <div class="tour-shield" ${el?"":'style="background:rgba(42,43,22,.62)"'}></div>
-    <div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourT">
-      <div class="stepn">Langkah ${i+1} dari ${steps.length}</div>
-      <h3 id="tourT">${esc(s.title)}</h3><p>${s.text}</p>
-      <div class="tour-dots">${steps.map((_,j)=>`<i class="${j<=i?"on":""}"></i>`).join("")}</div>
-      <div class="tour-acts">
-        <button type="button" class="skip" id="tSkip">${i===steps.length-1?"":"Lewati panduan"}</button>
-        <div style="display:flex;gap:8px">
-          ${i>0?'<button type="button" class="btn btn-light btn-sm" id="tBack">Kembali</button>':""}
-          <button type="button" class="btn btn-primary btn-sm" id="tNext">${i===steps.length-1?"Selesai, saya paham":"Lanjut"}</button>
-        </div>
-      </div>
-    </div>`;
-  $("#tNext").focus();
-  $("#tNext").onclick = () => { if(tour.i < tour.steps.length-1){ tour.i++; drawTour(); } else endTour(); };
-  const b=$("#tBack"); if(b) b.onclick=()=>{ tour.i--; drawTour(); };
-  $("#tSkip").onclick = endTour;
-}
-function endTour(){
-  if(tour && tour.key) store.set(tour.key, "1");
-  document.querySelectorAll(".tour-on").forEach(e=>e.classList.remove("tour-on"));
-  $("#tourRoot").innerHTML=""; tour=null;
-}
-const TOUR_TENANT = () => [
-  { title:"Selamat datang di "+CFG.kosName, text:"Panduan ini hanya muncul sekali dan memakan waktu kurang dari satu menit. Kalau ingin melihatnya lagi, tekan tombol <b>Panduan</b> di kanan atas." },
-  { sel:"#tStatus", title:"Kotak tagihan", text:"Kotak ini selalu menuliskan bulan apa saja yang belum dibayar dan totalnya. Kalau semuanya sudah lunas, warnanya berubah hijau tua." },
-  { sel:"#tPayBtn", title:"Tombol bayar", text:"Tekan tombol ini untuk membayar. Kode QRIS akan muncul. Scan pakai aplikasi bank atau dompet digital apa saja, lalu statusnya lunas sendiri." },
-  { sel:"#tFacts", title:"Info kamarmu", text:"Di sini tertulis harga sewa, tanggal mulai ngekos, dan tanggal jatuh tempo setiap bulan." },
-  { sel:"#tMonths", title:"Daftar bulan", text:"Biji kopi terisi berarti sudah lunas. Bulan yang belum dibayar bergaris merah dan punya tombol <b>Bayar</b> sendiri." },
-  { sel:"#accCard", title:"Ganti password", text:"Kalau masih memakai password awal dari pemilik kos, ganti di sini supaya akunmu aman." },
-];
-const TOUR_OWNER = () => [
-  { title:"Selamat datang, pemilik kos", text:"Panduan singkat ini menunjukkan bagian penting halaman pemilik. Bisa dibuka lagi kapan saja lewat tombol <b>Panduan</b>." },
-  { sel:"#oSum", title:"Ringkasan bulan ini", text:"Berapa kamar yang sudah bayar, uang yang masuk, dan total tunggakan." },
-  { sel:"#oUnpaid", title:"Siapa yang belum bayar", text:"Daftar kamar yang masih punya tunggakan beserta bulannya. Tekan namanya untuk melihat detail atau menandai lunas tunai." },
-  { sel:"#oMatrix", title:"Tabel semua kamar", text:"Setiap biji kopi adalah satu bulan. Pembayaran QRIS <b>tercentang otomatis</b> di sini. Tekan biji kopi kalau penghuni membayar tunai." },
-  { sel:"#oTabs", title:"Kamar dan penghuni", text:"Buka tab <b>Kamar dan penghuni</b> untuk mengubah harga, mengisi tanggal mulai ngekos, mereset password, atau mengganti penghuni." },
-  { sel:"#oExport", title:"Unduh rekap", text:"Simpan rekap pembayaran setahun dalam bentuk file yang bisa dibuka di Excel." },
-];
-$("#tourBtn").onclick = () => { if(O) { ownerTab="ringkasan"; renderOwner(); startTour(TOUR_OWNER(), null); } else if(T) startTour(TOUR_TENANT(), null); };
-
-/* =========================================================
-   HALAMAN ANAK KOS
-   ========================================================= */
-let T = null;
+let T = null;             // { room, payments, payMap }
 let tenantYear = null;
 
 async function openTenant(){
-  O = null;
   try{
     const d = await api("tenant");
     CUR = d.currentMonth;
     T = { room:d.room, payments:d.payments, payMap:Object.fromEntries(d.payments.map(p=>[p.month,p])) };
     if(tenantYear===null) tenantYear = parts(CUR).y;
     show("#app"); renderTenant();
-    const key = `ck_tour_t_${T.room.id}_${T.room.username}`;
-    if(!store.get(key)) setTimeout(()=>startTour(TOUR_TENANT(), key), 400);
   }catch(e){ if(e.status===401) return handleErr(e); bootError(e); }
 }
 
@@ -829,101 +662,95 @@ function renderTenant(){
   setWho(room.name, `Kamar ${room.no}`);
   const unpaid = unpaidKeys(room,payMap);
   const bill = nextBill(room,payMap);
+  const st = statusOf(room,payMap,bill);
   const allGood = unpaid.length===0;
-  const lp = lastPaid(room,payMap);
+  const due = parts(bill);
   const history = buildHistory(payments).slice(0,8);
-  const notStarted = !room.startMonth || room.startMonth > CUR;
 
-  let tiles="";
+  let months="";
   for(let m=0;m<12;m++){
-    const k=keyOf(tenantYear,m), s=statusOf(room,payMap,k), canPay = !isPaid(s) && s!=="none" && k<=addM(CUR,11);
-    const tag = canPay ? "button" : "div";
-    tiles+=`<${tag} ${canPay?`type="button" data-pay="${k}"`:""} class="mtile t-${s} ${k===CUR?"is-now":""}" aria-label="${BULAN_PANJANG[m]} ${tenantYear}: ${STATUS_TEXT[s]}">
-      ${k===CUR?'<span class="now">Bulan ini</span>':""}
-      ${bean(s)}<span class="mn">${BULAN_PANJANG[m]}</span><span class="st">${STATUS_TEXT[s]}</span>
-      ${canPay && (s==="belum"||s==="telat")?'<span class="go">Bayar</span>':""}
-    </${tag}>`;
+    const k=keyOf(tenantYear,m), s=statusOf(room,payMap,k), click = !isPaid(s) && s!=="none" && k<=addM(CUR,11);
+    months+=`<button type="button" class="mcard reveal ${click?"click":""} ${isPaid(s)?"is-lunas":""} ${k===CUR?"is-now":""}" style="--i:${m}" ${click?`data-pay="${k}"`:"disabled"}>
+      ${k===CUR?'<span class="now-tag">Bulan ini</span>':""}
+      <div class="m">${BULAN_PANJANG[m]}</div><div class="y">${tenantYear}</div>${BADGE[s]}
+      ${click?'<div class="hint">Klik untuk bayar →</div>':""}
+    </button>`;
   }
 
-  const statusBox = allGood ? `
-    <div class="status good" id="tStatus">
-      <div>
-        <div class="eyebrow">${notStarted?"Belum ada tagihan":"Semua tagihan lunas"}</div>
-        <h2>${notStarted ? `Tagihan pertama ${labelM(room.startMonth||CUR)}` : lp ? `Lunas sampai ${labelM(lp)}` : "Tidak ada tunggakan"}</h2>
-        <p>Tagihan berikutnya ${labelM(bill)}, jatuh tempo ${dueDateText(room,bill)}. Terima kasih sudah membayar tepat waktu.</p>
-      </div>
-      <div class="pay">
-        <button type="button" class="btn btn-light btn-big" id="tPayBtn" data-pay="${bill}">Bayar ${BULAN_PANJANG[parts(bill).m]} lebih awal</button>
-      </div>
-    </div>` : `
-    <div class="status bad" id="tStatus">
-      <div>
-        <div class="eyebrow">Belum dibayar: ${unpaid.length} bulan</div>
-        <h2>${unpaid.length>3 ? `${labelM(unpaid[0])} sampai ${labelM(unpaid[unpaid.length-1])}` : joinMonths(unpaid)}</h2>
-        <p>Bayar sekarang dengan QRIS. Setelah dibayar, statusnya langsung berubah jadi lunas tanpa perlu kirim bukti.</p>
-      </div>
-      <div class="pay">
-        <div class="total">${rupiah(room.price*unpaid.length)}</div>
-        <button type="button" class="btn btn-primary btn-big" id="tPayBtn" data-pay="${unpaid.join(",")}">Bayar sekarang</button>
-        <small>Jatuh tempo tiap tanggal ${dueDayOf(room)}</small>
-      </div>
-    </div>`;
-
   $("#view").innerHTML = `
-  ${room.usingDefaultPassword ? `<div class="notice warn"><span>Kamu masih memakai <b>password awal</b> dari pemilik kos. Ganti dulu supaya akunmu aman.</span><button class="btn btn-primary btn-sm" type="button" id="goAcc">Ganti password</button></div>`:""}
-  ${!CFG.duitkuReady ? `<div class="notice warn"><span>Pembayaran QRIS belum diaktifkan pemilik kos. Untuk sementara, bayar langsung ke pemilik kos.</span></div>`:""}
-  ${statusBox}
-  ${installEvt && !isStandalone() && !store.get("ck_install_hide") ? `<div class="notice info" style="margin-top:18px;margin-bottom:0" id="instNotice"><span>Pasang <b>${esc(CFG.kosName)}</b> di layar utama HP supaya lebih cepat dibuka, seperti aplikasi.</span><span style="display:flex;gap:8px"><button class="btn btn-light btn-sm" type="button" id="instLater">Nanti saja</button><button class="btn btn-primary btn-sm" type="button" data-install>Pasang aplikasi</button></span></div>`:""}
-  <dl class="facts" id="tFacts">
-    <div><dt>Kamar</dt><dd>Kamar ${room.no}</dd></div>
-    <div><dt>Sewa per bulan</dt><dd>${rupiah(room.price)}</dd></div>
-    <div><dt>Mulai ngekos</dt><dd>${room.startDate ? fmtTanggal(room.startDate) : room.startMonth ? labelM(room.startMonth) : "-"}</dd></div>
-    <div><dt>Jatuh tempo</dt><dd>Tiap tanggal ${dueDayOf(room)}</dd></div>
-  </dl>
-
-  <div id="tMonths">
-    <div class="sec-head">
-      <div><h3>Status per bulan</h3><p>Tekan bulan yang belum dibayar untuk langsung membayarnya.</p></div>
-      <div class="year"><button type="button" id="yPrev" aria-label="Tahun sebelumnya">‹</button><span>${tenantYear}</span><button type="button" id="yNext" aria-label="Tahun berikutnya">›</button></div>
+  ${room.usingDefaultPassword ? `<div class="notice warn"><span>🔑 Kamu masih memakai <b>password awal</b> dari pemilik kos. Ganti dulu supaya akunmu aman.</span><button class="btn btn-primary btn-sm" type="button" id="goAcc">Ganti sekarang</button></div>`:""}
+  ${!CFG.duitkuReady ? `<div class="notice warn"><span>Pembayaran QRIS belum diaktifkan oleh pemilik kos.</span></div>`:""}
+  <div class="hero reveal">
+    <div style="position:relative;z-index:1">
+      <span class="pill">🏠 Kamar ${room.no}</span>
+      <h2 style="margin-top:14px">Halo, ${esc(room.name)}!</h2>
+      <p style="opacity:.8;margin-top:8px;max-width:44ch;line-height:1.6">${allGood
+        ? "Pembayaranmu sudah beres semua. Terima kasih sudah bayar tepat waktu 🌿"
+        : unpaid.length>1 ? `Ada <b>${unpaid.length} bulan</b> yang belum dibayar. Yuk dilunasi supaya tenang.`
+        : "Tagihan bulan ini sudah keluar. Bayarnya cukup scan QRIS, nanti statusnya langsung tercatat."}</p>
+      <div class="meta">
+        <span class="pill">💳 ${rupiah(room.price)} / bulan</span>
+        <span class="pill">📅 Jatuh tempo tiap tgl ${CFG.dueDay}</span>
+      </div>
     </div>
-    <div class="months">${tiles}</div>
-    ${legendHtml()}
+    <div class="status-box">
+      <div class="label">${allGood ? "Tagihan berikutnya" : "Tagihan yang harus dibayar"}</div>
+      <div class="month">${allGood ? labelM(bill) : unpaid.length>1 ? `${shortM(unpaid[0])} – ${shortM(unpaid[unpaid.length-1])}` : labelM(bill)}</div>
+      <div style="margin-bottom:12px">${BADGE[st]}</div>
+      <div class="amount">${rupiah(room.price * (allGood?1:unpaid.length))}</div>
+      ${allGood
+        ? `<button type="button" class="btn btn-ghost btn-block" data-pay="${bill}">Bayar lebih awal</button>`
+        : `<button type="button" class="btn btn-primary btn-pay" data-pay="${unpaid.join(",")}">Bayar Sekarang dengan QRIS</button>`}
+      <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">Jatuh tempo ${CFG.dueDay} ${BULAN_PANJANG[due.m]} ${due.y}</p>
+    </div>
   </div>
 
-  <div class="two">
-    <div class="panel">
-      <h3>Riwayat pembayaran</h3>
-      <p>Pembayaran terakhir yang sudah tercatat.</p>
-      <ul class="hist">${history.length ? history.map(t=>`
-        <li><div><div class="t">${t.months.map(shortM).join(", ")}</div><small>${fmtDate(t.paidAt)}, ${t.method==="qris"?"lewat QRIS":"tunai ke pemilik"}</small></div>
-          <span class="amt">${rupiah(t.amount)}</span></li>`).join("") : `<li class="empty">Belum ada pembayaran yang tercatat.</li>`}
-      </ul>
+  <div class="steps">
+    <div class="step reveal" style="--i:2"><div class="num">1</div><div><b>Klik "Bayar"</b><span>Pilih bulan yang mau dibayar. Kode QRIS muncul dengan nominal yang pas.</span></div></div>
+    <div class="step reveal" style="--i:3"><div class="num">2</div><div><b>Scan QRIS</b><span>Pakai m-banking atau e-wallet apa saja: BCA, BRI, GoPay, DANA, OVO, dan lainnya.</span></div></div>
+    <div class="step reveal" style="--i:4"><div class="num">3</div><div><b>Otomatis lunas</b><span>Tidak perlu kirim bukti transfer. Statusnya langsung berubah jadi Lunas.</span></div></div>
+  </div>
+
+  <div class="section-title">
+    <div><h3>Status per bulan</h3><p>Hijau berarti sudah lunas. Bulan yang belum dibayar bisa diklik untuk bayar.</p></div>
+    <div class="year-switch"><button type="button" id="yPrev" aria-label="Tahun sebelumnya">‹</button><span>${tenantYear}</span><button type="button" id="yNext" aria-label="Tahun berikutnya">›</button></div>
+  </div>
+  <div class="months">${months}</div>
+
+  <div class="two-col" style="margin-top:34px">
+    <div class="card reveal" style="--i:2">
+      <h3 style="font-size:22px;margin-bottom:6px">Riwayat pembayaran</h3>
+      <div class="list">${history.length ? history.map(t=>`
+        <div class="li"><div style="display:flex;gap:12px;align-items:center"><div class="ic">${t.method==="qris"?"▦":"💵"}</div>
+          <div><div class="t">${t.months.map(shortM).join(", ")}</div><small>${fmtDate(t.paidAt)} · ${t.method==="qris"?"QRIS":"Dicatat pemilik"}</small></div></div>
+          <b style="color:var(--olive)">${rupiah(t.amount)}</b></div>`).join("") : `<div class="empty">Belum ada pembayaran.</div>`}
+      </div>
     </div>
-    <div class="panel" id="accCard">
-      <h3>Akun saya</h3>
-      <p>Ubah nama, username untuk masuk, atau password.</p>
-      <div class="field"><label for="aName">Nama</label><input class="input" id="aName" name="name" value="${esc(room.name)}" maxlength="40"></div>
-      <div class="field"><label for="aUser">Username untuk masuk</label><input class="input" id="aUser" name="username" value="${esc(room.username)}" maxlength="24" autocapitalize="none" spellcheck="false"><div class="help">Huruf, angka, titik, atau garis bawah. Minimal 3 karakter.</div></div>
-      <div class="field"><label for="aOld">Password lama</label><input class="input" id="aOld" type="password" name="oldPassword" autocomplete="current-password"><div class="help">Diisi hanya kalau ingin mengganti password.</div></div>
-      <div class="field"><label for="aNew">Password baru</label><input class="input" id="aNew" type="password" name="newPassword" autocomplete="new-password"><div class="help">Minimal 6 karakter.</div></div>
-      <div class="err" id="accErr" role="alert"></div>
+    <div class="card reveal" style="--i:3" id="accCard">
+      <h3 style="font-size:22px;margin-bottom:4px">Akun saya</h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px">Ganti username awal (<b>kamar${room.no}</b>) jadi namamu, lalu ganti password.</p>
+      <div class="field"><label>Nama tampilan</label><input class="input" name="name" value="${esc(room.name)}" maxlength="40"></div>
+      <div class="field"><label>Username untuk login</label><input class="input" name="username" value="${esc(room.username)}" maxlength="24" autocapitalize="none" spellcheck="false"></div>
+      <div class="row2">
+        <div class="field"><label>Password lama</label><input class="input" type="password" name="oldPassword" placeholder="wajib jika ganti" autocomplete="current-password"></div>
+        <div class="field"><label>Password baru</label><input class="input" type="password" name="newPassword" placeholder="min. 6 karakter" autocomplete="new-password"></div>
+      </div>
+      <div class="err" id="accErr"></div>
       <button class="btn btn-sage btn-block" type="button" id="accSave">Simpan perubahan</button>
     </div>
   </div>`;
 
   $("#view").querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>openPayment(b.dataset.pay.split(",")));
-  $("#view").querySelectorAll("[data-install]").forEach(b=>b.onclick=doInstall);
-  const il=$("#instLater"); if(il) il.onclick=()=>{ store.set("ck_install_hide","1"); $("#instNotice").remove(); };
   $("#yPrev").onclick=()=>{tenantYear--;renderTenant();};
   $("#yNext").onclick=()=>{tenantYear++;renderTenant();};
-  const goAcc=$("#goAcc"); if(goAcc) goAcc.onclick=()=>{ $("#accCard").scrollIntoView({behavior:"smooth",block:"center"}); setTimeout(()=>$("#aOld").focus({preventScroll:true}),500); };
+  const goAcc=$("#goAcc"); if(goAcc) goAcc.onclick=()=>{ $("#accCard").scrollIntoView({behavior:"smooth",block:"center"}); setTimeout(()=>$("#accCard [name=oldPassword]").focus(),500); };
   const accCard=$("#accCard"), accBtn=$("#accSave");
   bindEnter(accCard, accBtn);
   accBtn.onclick=()=>busy(accBtn, async()=>{
     const v=vals(accCard);
     try{
       const r = await api("tenant?action=account",{method:"POST",body:v});
-      T.room = r.room; renderTenant(); toast(v.newPassword ? "Perubahan dan password baru tersimpan." : "Perubahan tersimpan.");
+      T.room = r.room; renderTenant(); toast(v.newPassword ? "Akun & password diperbarui" : "Akun diperbarui");
     }catch(e){ if(e.status===401) return handleErr(e); $("#accErr").textContent=e.message; }
   });
 }
@@ -936,14 +763,14 @@ function openPayment(preselect){
   const sel = new Set(preselect.filter(k=>!isPaid(statusOf(room,payMap,k)) && statusOf(room,payMap,k)!=="none"));
   const draw = () => {
     const m = openModal(`
-      <div class="m-head"><div><h3>Bayar sewa kos</h3><p>Kamar ${room.no}, ${esc(room.name)}</p></div><button class="x" data-close aria-label="Tutup">✕</button></div>
-      <div class="m-body">
-        <p class="pick-note">Bulan yang dibayar (tekan untuk memilih atau membatalkan)</p>
-        <div class="mpick">${options.map(k=>{const s=statusOf(room,payMap,k),paid=isPaid(s);
-          return `<button type="button" class="mp ${sel.has(k)?"on":""}" data-k="${k}" ${paid||s==="none"?"disabled":""} aria-pressed="${sel.has(k)}">${shortM(k)}<small>${paid?"sudah lunas":s==="telat"?"terlambat":s==="belum"?"bulan ini":"bulan depan"}</small></button>`;}).join("")}</div>
+      <div class="modal-head"><div><h3>Bayar kos</h3><p>Kamar ${room.no} · ${esc(room.name)}</p></div><button class="x" data-close>✕</button></div>
+      <div class="modal-body">
+        <p style="font-size:13px;font-weight:600;color:var(--olive);margin-bottom:6px">Pilih bulan yang dibayar</p>
+        <div class="month-pick">${options.map(k=>{const s=statusOf(room,payMap,k),paid=isPaid(s);
+          return `<button type="button" class="mp ${sel.has(k)?"on":""}" data-k="${k}" ${paid||s==="none"?"disabled":""}>${shortM(k)}${paid?" ✓":""}</button>`;}).join("")}</div>
         <div class="total-row"><span>${sel.size} bulan × ${rupiah(room.price)}</span><b>${rupiah(sel.size*room.price)}</b></div>
-        <div class="err" id="payErr" role="alert"></div>
-        <button type="button" class="btn btn-primary btn-big btn-block" id="genQr" ${sel.size?"":"disabled"}>${sel.size?`Tampilkan kode QRIS`:"Pilih minimal satu bulan"}</button>
+        <div class="err" id="payErr"></div>
+        <button type="button" class="btn btn-primary btn-block" id="genQr" ${sel.size?"":"disabled"}>Tampilkan QRIS</button>
       </div>`);
     m.querySelectorAll(".mp:not(:disabled)").forEach(b=>b.onclick=()=>{ sel.has(b.dataset.k)?sel.delete(b.dataset.k):sel.add(b.dataset.k); draw(); });
     const g=m.querySelector("#genQr");
@@ -959,27 +786,27 @@ function showQr(order){
   const { room } = T;
   const waText = `Halo, ini tagihan kos ${room.name} (Kamar ${room.no}) di ${CFG.kosName} untuk ${order.months.map(labelM).join(", ")} sebesar ${rupiah(order.amount)}.`
     + (order.paymentUrl ? `\nBayar lewat link ini (berlaku 15 menit): ${order.paymentUrl}` : "")
-    + `\nSetelah dibayar, statusnya otomatis lunas. Terima kasih.`;
-  openModal(`
-    <div class="m-head"><div><h3>Scan untuk bayar</h3><p>${joinMonths(order.months)}</p></div><button class="x" data-close aria-label="Tutup">✕</button></div>
-    <div class="m-body" id="payBody">
-      <div class="qris">
-        <div class="qris-top"><b>QRIS</b>${CFG.duitkuEnv==="sandbox"?'<span class="sbx">Uji coba</span>':""}</div>
-        ${order.qrSvg ? `<div class="qr-box">${order.qrSvg}<div class="scanline"></div></div>`
-          : `<p style="padding:30px 10px;color:var(--muted)">Kode QR tersedia di halaman pembayaran Duitku (link di bawah).</p>`}
-        <div style="color:var(--muted);font-size:15px;margin-top:6px">${esc(CFG.kosName)}, Kamar ${room.no}</div>
+    + `\nSetelah dibayar, status otomatis jadi LUNAS. Terima kasih 🙏`;
+  const m = openModal(`
+    <div class="modal-head"><div><h3>Scan untuk bayar</h3><p>${order.months.map(shortM).join(", ")}</p></div><button class="x" data-close>✕</button></div>
+    <div class="modal-body" id="payBody">
+      <div class="qris-card">
+        <div class="qris-top"><span class="qris-logo">QRIS</span>${CFG.duitkuEnv==="sandbox"?'<span class="sbx">SANDBOX</span>':""}</div>
+        ${order.qrSvg ? `<div class="qr-box"><div class="qr-fade">${order.qrSvg}</div><div class="scanline"></div></div>`
+          : `<p style="padding:30px 10px;color:var(--muted);font-size:14px">Kode QR tersedia di halaman pembayaran Duitku.</p>`}
+        <div class="qr-merchant">${esc(CFG.kosName)} · Kamar ${room.no}</div>
         <div class="qr-amount">${rupiah(order.amount)}</div>
-        <div class="timer">Berlaku <span id="tmr">--:--</span> lagi</div>
+        <div class="timer">⏱ Berlaku <span id="tmr">--:--</span></div>
       </div>
-      <div class="waiting"><span class="spinner"></span>Menunggu pembayaran. Layar ini berubah sendiri setelah kamu bayar.</div>
-      <ol class="how">
-        <li>Buka aplikasi bank atau dompet digital di HP.</li>
-        <li>Pilih menu Scan atau QRIS, lalu arahkan kamera ke kode di atas.</li>
-        <li>Pastikan nominalnya ${rupiah(order.amount)}, lalu konfirmasi.</li>
-      </ol>
-      <a class="btn btn-light btn-block" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(waText)}">Kirim tagihan ke orang tua lewat WhatsApp</a>
-      ${order.paymentUrl ? `<a class="pay-link" href="${esc(order.paymentUrl)}" target="_blank" rel="noopener">Buka halaman pembayaran Duitku</a>`:""}
-      <p class="small-id">Nomor transaksi: ${esc(order.orderId)}</p>
+      <div class="waiting"><span class="dots"><span></span><span></span><span></span></span> Menunggu pembayaran…</div>
+      <div class="mini-steps">
+        <div><b>1</b>Buka aplikasi m-banking / e-wallet</div>
+        <div><b>2</b>Pilih menu Scan / QRIS lalu arahkan ke kode di atas</div>
+        <div><b>3</b>Pastikan nominal ${rupiah(order.amount)}, lalu konfirmasi</div>
+      </div>
+      <a class="btn btn-ghost btn-block btn-sm" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(waText)}">📲 Kirim tagihan ke orang tua (WhatsApp)</a>
+      ${order.paymentUrl ? `<a class="pay-link" href="${esc(order.paymentUrl)}" target="_blank" rel="noopener">Buka halaman pembayaran Duitku ↗</a>`:""}
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:10px">Order ID: ${esc(order.orderId)}</p>
     </div>`);
 
   const expires = Date.parse(order.expiresAt);
@@ -992,7 +819,7 @@ function showQr(order){
       const s = await api(`pay?action=status&orderId=${encodeURIComponent(order.orderId)}`);
       if(s.status==="paid"){ finished=true; return paid(); }
       if(s.status==="failed"){ finished=true; return failed("Pembayaran dibatalkan atau gagal."); }
-      if(Date.now() > expires + 60000){ finished=true; return failed("Kode QRIS sudah kedaluwarsa."); }
+      if(Date.now() > expires + 60000){ finished=true; return failed(`Kode QRIS sudah kedaluwarsa.`); }
     }catch(e){ if(e.status===401){ finished=true; handleErr(e); } }
   };
   const iv1=setInterval(tick,1000), iv2=setInterval(poll,4000); tick();
@@ -1001,23 +828,24 @@ function showQr(order){
   function failed(msg){
     clearInterval(iv1); clearInterval(iv2);
     const b=$("#payBody"); if(!b) return;
-    b.innerHTML=`<div class="success"><h3>${esc(msg)}</h3><p style="color:var(--muted);margin:10px 0 20px">Kalau saldomu sudah terpotong, tunggu beberapa menit lalu muat ulang halaman. Statusnya akan menyesuaikan sendiri.</p>
-      <button type="button" class="btn btn-primary btn-big btn-block" id="again">Buat kode QRIS baru</button></div>`;
+    b.innerHTML=`<div class="success"><h3>${esc(msg)}</h3><p style="color:var(--muted);margin:8px 0 18px">Kalau saldo kamu sudah terpotong, tunggu beberapa menit lalu muat ulang halaman. Statusnya akan menyesuaikan otomatis.</p>
+      <button type="button" class="btn btn-primary btn-block" id="again">Buat QRIS baru</button></div>`;
     $("#again").onclick=()=>openPayment(order.months);
   }
   async function paid(){
     clearInterval(iv1); clearInterval(iv2);
     const b=$("#payBody"); if(!b) return;
     b.innerHTML=`<div class="success">
-      <svg class="check-anim" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="46"/><path d="M30 52 l14 14 l27 -30"/></svg>
-      <h3>Pembayaran berhasil</h3><p style="color:var(--muted);margin-top:4px">Statusnya sudah lunas. Tidak perlu kirim bukti bayar.</p>
+      <svg class="check" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46"/><path d="M30 52 l14 14 l27 -30"/></svg>
+      <h3>Pembayaran berhasil!</h3><p style="color:var(--muted);margin-top:4px">Status sudah otomatis jadi <b style="color:var(--olive)">Lunas</b>.</p>
       <div class="receipt">
-        <div><span>Kamar</span><b>Kamar ${room.no}, ${esc(room.name)}</b></div>
+        <div><span>Kamar</span><b>${room.no} · ${esc(room.name)}</b></div>
         <div><span>Bulan</span><b>${order.months.map(shortM).join(", ")}</b></div>
-        <div><span>Jumlah</span><b>${rupiah(order.amount)}</b></div>
-        <div><span>Cara bayar</span><b>QRIS</b></div>
+        <div><span>Nominal</span><b>${rupiah(order.amount)}</b></div>
+        <div><span>Metode</span><b>QRIS</b></div>
+        <div><span>Order ID</span><b style="font-size:11px">${esc(order.orderId)}</b></div>
       </div>
-      <button type="button" class="btn btn-primary btn-big btn-block" data-close>Selesai</button></div>`;
+      <button type="button" class="btn btn-primary btn-block" data-close>Selesai</button></div>`;
     b.querySelector("[data-close]").onclick=closeModal;
     confetti();
     try{ const d = await api("tenant"); T = { room:d.room, payments:d.payments, payMap:Object.fromEntries(d.payments.map(p=>[p.month,p])) }; renderTenant(); }catch(e){}
@@ -1025,10 +853,10 @@ function showQr(order){
 }
 
 /* =========================================================
-   HALAMAN PEMILIK
+   DASHBOARD PEMILIK
    ========================================================= */
-let O = null;
-let ownerTab = "ringkasan", ownerYear = null, lastCheck = null;
+let O = null;   // { rooms, payments, pay: {roomId: {month: p}}, duitku }
+let ownerTab = "ringkasan", ownerYear = null;
 
 async function loadOwner(){
   const d = await api("owner");
@@ -1036,52 +864,37 @@ async function loadOwner(){
   const pay = {}; d.rooms.forEach(r=>pay[r.id]={}); d.payments.forEach(p=>{ (pay[p.roomId] ||= {})[p.month]=p; });
   O = { rooms:d.rooms, payments:d.payments, pay, duitku:d.duitku };
   if(ownerYear===null) ownerYear = parts(CUR).y;
-  lastCheck = new Date();
 }
 async function openOwner(){
-  T = null;
-  try{
-    await loadOwner(); show("#app"); renderOwner();
-    stopTimers(); timers.push(setInterval(()=>{ if(!document.hidden && O) refreshOwner(); }, 15000));
-    if(!store.get("ck_tour_owner")) setTimeout(()=>startTour(TOUR_OWNER(), "ck_tour_owner"), 400);
-  }catch(e){ if(e.status===401) return handleErr(e); bootError(e); }
+  try{ await loadOwner(); show("#app"); renderOwner(); }catch(e){ if(e.status===401) return handleErr(e); bootError(e); }
 }
-/* Cek data baru di belakang layar. Tampilan hanya digambar ulang kalau ada perubahan,
-   dan tidak mengganggu saat pemilik sedang mengisi form atau membuka jendela. */
-async function refreshOwner(force=false){
-  const a=document.activeElement;
-  if(!force && ($("#modalRoot .overlay") || tour || (a && /INPUT|SELECT|TEXTAREA/.test(a.tagName)))) return;
-  try{
-    const before = new Set(O.payments.map(p=>`${p.roomId}|${p.month}`));
-    const sig = JSON.stringify([O.rooms, O.payments]);
-    await loadOwner();
-    const live=$("#liveTime"); if(live) live.textContent = lastCheck.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"});
-    if(!force && JSON.stringify([O.rooms, O.payments]) === sig) return;
-    const fresh = O.payments.filter(p=>p.method==="qris" && !before.has(`${p.roomId}|${p.month}`));
-    renderOwnerBody();
-    if(!force) buildHistory(fresh).forEach(t=>{
-      const r=O.rooms.find(x=>x.id===t.roomId);
-      toast(`${r?r.name:"Kamar "+t.roomId} baru saja bayar ${t.months.map(shortM).join(", ")} lewat QRIS. Sudah tercentang otomatis.`, 6000);
-      t.months.forEach(k=>{ const c=document.querySelector(`.cell[data-r="${t.roomId}"][data-k="${k}"]`); if(c) c.classList.add("flash"); });
-    });
-  }catch(e){ handleErr(e); }
-}
+async function refreshOwner(){ try{ await loadOwner(); renderOwnerBody(); }catch(e){ handleErr(e); } }
 
 function renderOwner(){
-  setWho("Pemilik kos", CFG.kosName);
-  const tabs=[["ringkasan","Ringkasan"],["kamar","Kamar dan penghuni"],["riwayat","Riwayat bayar"]];
+  setWho("Pemilik Kos", "Pemilik kos");
   $("#view").innerHTML = `
-    ${!O.duitku.ready ? `<div class="notice warn"><span><b>QRIS belum tersambung.</b> Isi DUITKU_MERCHANT_CODE dan DUITKU_API_KEY di Vercel supaya anak kos bisa bayar QRIS. Sementara itu, pembayaran tunai tetap bisa dicatat.</span></div>`
-      : O.duitku.env==="sandbox" ? `<div class="notice info"><span>QRIS tersambung dalam <b>mode uji coba</b>. Ganti DUITKU_ENV menjadi production saat siap menerima uang sungguhan.</span></div>`:""}
-    <div class="o-head">
-      <div><h2>Halaman pemilik</h2>
-        <div class="live"><i></i>Pembayaran QRIS tercentang otomatis. Terakhir diperiksa pukul <span id="liveTime">${lastCheck.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}</span></div></div>
-      <div class="tabs" id="oTabs" role="tablist">${tabs.map(([k,l])=>`<button type="button" role="tab" class="tab ${ownerTab===k?"active":""}" aria-selected="${ownerTab===k}" data-t="${k}">${l}</button>`).join("")}</div>
+    ${!O.duitku.ready ? `<div class="notice warn"><span>⚙️ <b>Duitku belum tersambung.</b> Isi DUITKU_MERCHANT_CODE dan DUITKU_API_KEY di Vercel supaya anak kos bisa bayar QRIS. Sementara itu, kamu tetap bisa mencatat pembayaran manual.</span></div>`
+      : O.duitku.env==="sandbox" ? `<div class="notice info"><span>Duitku tersambung dalam <b>mode sandbox</b> (metode ${esc(O.duitku.method)}). Ganti DUITKU_ENV ke <b>production</b> saat sudah siap menerima uang sungguhan.</span></div>`:""}
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap" class="reveal">
+      <div><h2 style="font-size:clamp(28px,3.4vw,38px)">Dashboard pemilik</h2><p style="color:var(--muted);margin-top:4px">Pantau dan ubah status pembayaran semua kamar · ${labelM(CUR)}</p></div>
+      <div class="tabs" id="tabs"><span class="tab-ind"></span>
+        <button type="button" class="tab" data-t="ringkasan">Ringkasan</button>
+        <button type="button" class="tab" data-t="kamar">Kamar & Penghuni</button>
+        <button type="button" class="tab" data-t="riwayat">Riwayat</button>
+      </div>
     </div>
-    <div id="ownerBody"></div>`;
-  $("#oTabs").querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ ownerTab=t.dataset.t; renderOwner(); });
-  renderOwnerBody();
+    <div id="ownerBody" style="margin-top:22px"></div>`;
+  $("#tabs").querySelectorAll(".tab").forEach(t=>t.onclick=()=>{ownerTab=t.dataset.t;paintTabs();renderOwnerBody();});
+  paintTabs(); renderOwnerBody();
+  stopTimers(); timers.push(setInterval(()=>{ if(!$("#modalRoot .overlay") && !document.hidden && O) refreshOwner(); }, 30000));
 }
+function paintTabs(){
+  const tabs=$("#tabs"); if(!tabs) return;
+  tabs.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.t===ownerTab));
+  const a=tabs.querySelector(".tab.active"), ind=tabs.querySelector(".tab-ind");
+  requestAnimationFrame(()=>{ ind.style.left=a.offsetLeft+"px"; ind.style.width=a.offsetWidth+"px"; });
+}
+addEventListener("resize", paintTabs);
 function renderOwnerBody(){
   const body=$("#ownerBody"); if(!body) return;
   if(ownerTab==="ringkasan") return ownerSummary(body);
@@ -1093,253 +906,232 @@ function ownerSummary(body){
   const active = O.rooms.filter(r=>r.startMonth && r.startMonth<=CUR);
   const paidNow = active.filter(r=>isPaid(statusOf(r,O.pay[r.id],CUR)));
   const income = paidNow.reduce((s,r)=>s+Number(O.pay[r.id][CUR].amount||r.price),0);
-  const late = active.map(r=>({ r, u:unpaidKeys(r,O.pay[r.id]) })).filter(x=>x.u.length);
-  const arrears = late.reduce((s,x)=>s+x.u.length*x.r.price,0);
-  const pct = active.length ? Math.round(paidNow.length/active.length*100) : 0;
+  const arrears = active.reduce((s,r)=>s+unpaidKeys(r,O.pay[r.id]).length*r.price,0);
+  const qrisCount = buildHistory(O.payments).filter(t=>t.method==="qris" && String(t.paidAt).slice(0,7)===CUR).length;
+  const pct = active.length ? paidNow.length/active.length : 0;
+  const C = 2*Math.PI*26;
 
   let head="", rows="";
   for(let m=0;m<12;m++){ const k=keyOf(ownerYear,m); head+=`<th class="${k===CUR?"cur":""}">${BULAN[m]}</th>`; }
-  O.rooms.forEach(r=>{
+  O.rooms.forEach((r,ri)=>{
     let cells="";
     for(let m=0;m<12;m++){
       const k=keyOf(ownerYear,m), s=statusOf(r,O.pay[r.id],k);
-      cells+=`<td><button type="button" class="cell" title="${BULAN_PANJANG[m]} ${ownerYear}: ${STATUS_TEXT[s]}" aria-label="${esc(r.name)}, ${BULAN_PANJANG[m]} ${ownerYear}: ${STATUS_TEXT[s]}" data-r="${r.id}" data-k="${k}" ${s==="none"?"disabled":""}>${s==="none"?"":bean(s)}</button></td>`;
+      const sym={lunas:"✓",manual:"✓",belum:"!",telat:"✕",next:"·",none:"–"}[s];
+      const tip={lunas:"Lunas via QRIS",manual:"Lunas (dicatat manual)",belum:"Belum bayar",telat:"Terlambat",next:"Mendatang",none:"Belum ngekos"}[s];
+      cells+=`<td><button type="button" class="cell c-${s}" title="${BULAN_PANJANG[m]} ${ownerYear}: ${tip}" style="animation-delay:${(ri*12+m)*10}ms" data-r="${r.id}" data-k="${k}" ${s==="none"?"disabled":""}>${sym}</button></td>`;
     }
     const u = unpaidKeys(r,O.pay[r.id]).length, lp = lastPaid(r,O.pay[r.id]);
-    const note = !r.startMonth || r.startMonth>CUR ? "belum mulai ngekos" : u ? `${u} bulan belum dibayar` : lp ? `lunas sampai ${shortM(lp)}` : "";
-    rows+=`<tr><td class="room"><b>${r.no}. ${esc(r.name)}</b><small>${note}</small></td>${cells}</tr>`;
+    const note = !r.startMonth || r.startMonth>CUR ? "belum ngekos" : u ? `${u} bln belum bayar` : lp ? `lunas s/d ${shortM(lp)}` : "";
+    rows+=`<tr><td class="room"><b>${r.no}. ${esc(r.name)}</b><small>@${esc(r.username)} · ${note}</small></td>${cells}</tr>`;
   });
 
   body.innerHTML = `
-    <div class="sum" id="oSum">
-      <div class="main"><div class="k">Sudah bayar ${labelM(CUR)}</div><div class="v">${paidNow.length} dari ${active.length} kamar</div>
-        <div class="bar"><div id="sumBar" style="width:0"></div></div></div>
-      <div><div class="k">Uang masuk ${BULAN_PANJANG[parts(CUR).m]}</div><div class="v" style="color:var(--olive)">${rupiah(income)}</div><div class="d">dari target ${rupiah(active.reduce((s,r)=>s+r.price,0))}</div></div>
-      <div><div class="k">Total tunggakan</div><div class="v" style="color:${arrears?"var(--rust)":"var(--olive)"}">${rupiah(arrears)}</div><div class="d">${late.length} kamar belum lunas</div></div>
+    <div class="stats">
+      <div class="stat dark reveal" style="--i:0"><div class="k">Lunas bulan ini</div><div class="v"><span id="sv1">0</span><span style="font-size:20px;opacity:.6"> / ${active.length}</span></div><div class="d">kamar sudah bayar</div>
+        <svg class="ring" viewBox="0 0 64 64"><circle class="bg" cx="32" cy="32" r="26"/><circle class="fg" id="ringFg" cx="32" cy="32" r="26" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg></div>
+      <div class="stat reveal" style="--i:1"><div class="k">Pemasukan ${BULAN[parts(CUR).m]}</div><div class="v" id="sv2">Rp0</div><div class="d">dari ${rupiah(active.reduce((s,r)=>s+r.price,0))} target</div></div>
+      <div class="stat reveal" style="--i:2"><div class="k">Total tunggakan</div><div class="v" id="sv3" style="color:var(--rust)">Rp0</div><div class="d">${active.filter(r=>unpaidKeys(r,O.pay[r.id]).length).length} kamar belum lunas</div></div>
+      <div class="stat reveal" style="--i:3"><div class="k">Bayar via QRIS</div><div class="v" id="sv4">0</div><div class="d">transaksi otomatis bulan ini</div></div>
     </div>
 
-    <div id="oUnpaid">
-      <div class="sec-head"><div><h3>Belum bayar</h3><p>Tekan nama kamar untuk melihat detail atau mencatat pembayaran tunai.</p></div></div>
-      ${late.length ? `<div class="unpaid-list">${late.map(x=>`<button type="button" class="chip" data-r="${x.r.id}" data-k="${x.u[0]}">${bean(x.u.some(k=>k<CUR)?"telat":"belum")}${esc(x.r.name)}: ${x.u.length>2?`${shortM(x.u[0])} sampai ${shortM(x.u[x.u.length-1])}`:x.u.map(shortM).join(" dan ")}</button>`).join("")}</div>`
-        : `<div class="all-good">Semua kamar sudah lunas sampai ${labelM(CUR)}.</div>`}
-    </div>
-
-    <div class="sec-head">
-      <div><h3>Semua kamar</h3><p>Pembayaran QRIS tercentang sendiri. Tekan biji kopi untuk mencatat bayar tunai atau membatalkannya.</p></div>
-      <div class="m-acts">
-        <div class="year"><button type="button" id="oyPrev" aria-label="Tahun sebelumnya">‹</button><span>${ownerYear}</span><button type="button" id="oyNext" aria-label="Tahun berikutnya">›</button></div>
-        <button type="button" class="btn btn-light btn-sm" id="rangeBtn">Tandai banyak bulan</button>
-        <button type="button" class="btn btn-sage btn-sm" id="oExport">Unduh rekap ${ownerYear}</button>
+    <div class="section-title">
+      <div><h3>Status pembayaran semua kamar</h3><p>Klik kotak untuk mengubah status (misalnya kalau penghuni bayar tunai).</p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div class="year-switch"><button type="button" id="oyPrev">‹</button><span>${ownerYear}</span><button type="button" id="oyNext">›</button></div>
+        <button type="button" class="btn btn-primary btn-sm" id="rangeBtn">✎ Atur rentang bulan</button>
       </div>
     </div>
-    <div class="matrix-wrap" id="oMatrix"><table class="matrix"><thead><tr><th style="text-align:left;padding-left:12px">Kamar</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
-    ${legendHtml()}`;
+    <div class="matrix-wrap reveal" style="--i:4"><table class="matrix"><thead><tr><th style="text-align:left;padding-left:18px">Kamar</th>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="legend">
+      <span><i style="background:var(--sage)"></i>Lunas (QRIS)</span>
+      <span><i style="background:var(--sage-2);outline:2px dashed var(--sage);outline-offset:-3px"></i>Lunas (manual/tunai)</span>
+      <span><i style="background:var(--rust-bg)"></i>Belum bayar bulan ini</span>
+      <span><i style="background:var(--rust)"></i>Terlambat</span>
+      <span><i style="border:1.5px dashed var(--sand)"></i>Mendatang</span>
+    </div>`;
 
-  requestAnimationFrame(()=>{ const b=$("#sumBar"); if(b) b.style.width=pct+"%"; });
+  countUp($("#sv1"), paidNow.length);
+  countUp($("#sv2"), income, v=>rupiah(Math.round(v/1000)*1000));
+  countUp($("#sv3"), arrears, v=>rupiah(Math.round(v/1000)*1000));
+  countUp($("#sv4"), qrisCount);
+  setTimeout(()=>{ const f=$("#ringFg"); if(f) f.style.strokeDashoffset = C*(1-pct); },120);
+
   $("#oyPrev").onclick=()=>{ownerYear--;ownerSummary(body);};
   $("#oyNext").onclick=()=>{ownerYear++;ownerSummary(body);};
   $("#rangeBtn").onclick=()=>openRange();
-  $("#oExport").onclick=()=>exportCsv(ownerYear);
-  body.querySelectorAll(".cell:not(:disabled), .chip").forEach(c=>c.onclick=()=>openCell(Number(c.dataset.r),c.dataset.k));
-}
-
-/* Unduh rekap setahun (CSV, bisa dibuka di Excel) */
-function exportCsv(year){
-  const sep=";", q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
-  const lines=[["Kamar","Nama","Username","Mulai ngekos","Sewa/bulan",...BULAN_PANJANG.map(m=>`${m} ${year}`),"Bulan belum dibayar","Tunggakan (Rp)"].map(q).join(sep)];
-  O.rooms.forEach(r=>{
-    const cols=[]; for(let m=0;m<12;m++){ const s=statusOf(r,O.pay[r.id],keyOf(year,m)); cols.push(s==="none"?"-":STATUS_TEXT[s]); }
-    const u=unpaidKeys(r,O.pay[r.id]);
-    lines.push([r.no,r.name,r.username,r.startDate?fmtTanggal(r.startDate):r.startMonth?labelM(r.startMonth):"-",r.price,...cols,u.map(shortM).join(", ")||"-",u.length*r.price].map(q).join(sep));
-  });
-  const blob=new Blob(["﻿"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
-  a.download=`rekap-${CFG.kosName.toLowerCase().replace(/\s+/g,"-")}-${year}.csv`; document.body.appendChild(a); a.click();
-  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);
-  toast(`Rekap ${year} sudah diunduh. Buka filenya dengan Excel.`);
+  body.querySelectorAll(".cell:not(:disabled)").forEach(c=>c.onclick=()=>openCell(Number(c.dataset.r),c.dataset.k));
 }
 
 async function setMonths(roomIds, from, to, paid){
   await api("owner?action=setMonths",{method:"POST",body:{roomIds,from,to,paid}});
 }
+
 function openCell(roomId,k){
   const r=O.rooms.find(x=>x.id===roomId), s=statusOf(r,O.pay[roomId],k), p=O.pay[roomId][k];
   const m=openModal(`
-    <div class="m-head"><div><h3>${esc(r.name)}</h3><p>Kamar ${r.no}, ${labelM(k)}</p></div><button class="x" data-close aria-label="Tutup">✕</button></div>
-    <div class="m-body">
-      <div style="display:flex;align-items:center;gap:10px;font-weight:700;margin-bottom:14px">${bean(s)}${STATUS_TEXT[s]}</div>
-      ${p?`<div class="receipt"><div><span>Cara bayar</span><b>${p.method==="qris"?"QRIS (otomatis)":"Tunai, dicatat pemilik"}</b></div><div><span>Dicatat</span><b>${fmtDate(p.paidAt)}</b></div>${p.amount?`<div><span>Jumlah</span><b>${rupiah(p.amount)}</b></div>`:""}</div>`
-        :`<p style="color:var(--muted);margin-bottom:16px">Belum ada pembayaran untuk bulan ini. Kalau penghuni sudah bayar tunai atau transfer langsung ke kamu, catat sebagai lunas.</p>`}
-      ${p?`<button type="button" class="btn btn-light btn-block" id="cellUnpay">Batalkan, jadikan belum dibayar</button>`
-         :`<button type="button" class="btn btn-primary btn-big btn-block" id="cellPay">Catat sudah bayar tunai</button>`}
+    <div class="modal-head"><div><h3>${esc(r.name)}</h3><p>Kamar ${r.no} · ${labelM(k)}</p></div><button class="x" data-close>✕</button></div>
+    <div class="modal-body">
+      <div style="margin-bottom:14px">${BADGE[s]}</div>
+      ${p?`<div class="receipt"><div><span>Metode</span><b>${p.method==="qris"?"QRIS (otomatis)":"Manual / tunai"}</b></div><div><span>Dicatat</span><b>${fmtDate(p.paidAt)}</b></div>${p.orderId?`<div><span>Order ID</span><b style="font-size:11px">${esc(p.orderId)}</b></div>`:""}</div>`
+        :`<p style="color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.6">Belum ada pembayaran untuk bulan ini. Kalau penghuni sudah bayar tunai atau transfer langsung, tandai lunas secara manual.</p>`}
+      ${p?`<button type="button" class="btn btn-ghost btn-block" id="cellUnpay">Batalkan, tandai belum bayar</button>`
+         :`<button type="button" class="btn btn-primary btn-block" id="cellPay">Tandai lunas (tunai/manual)</button>`}
     </div>`);
   const pay=m.querySelector("#cellPay"), un=m.querySelector("#cellUnpay");
-  if(pay) pay.onclick=()=>busy(pay, async()=>{ try{ await setMonths([roomId],k,k,true); closeModal(); await refreshOwner(true); toast(`${r.name}, ${labelM(k)} dicatat lunas.`); }catch(e){ handleErr(e); } });
+  if(pay) pay.onclick=()=>busy(pay, async()=>{ try{ await setMonths([roomId],k,k,true); closeModal(); await refreshOwner(); toast(`${r.name} · ${shortM(k)} ditandai lunas`); }catch(e){ handleErr(e); } });
   if(un) un.onclick=async()=>{
     if(p.method==="qris"){
-      const ok = await confirmBox("Batalkan pembayaran QRIS?", `Pembayaran ${labelM(k)} kamar ${r.no} masuk lewat QRIS dan uangnya sudah diterima Duitku. Yakin mau dijadikan belum dibayar?`, "Ya, batalkan", true);
+      const ok = await confirmBox("Batalkan pembayaran QRIS?", `Pembayaran ${shortM(k)} kamar ${r.no} masuk lewat QRIS dan uangnya sudah diterima Duitku. Yakin mau ditandai belum bayar?`, "Ya, batalkan", true);
       if(!ok) return;
     }
-    try{ await setMonths([roomId],k,k,false); closeModal(); await refreshOwner(true); toast(`${labelM(k)} dijadikan belum dibayar.`); }catch(e){ handleErr(e); }
+    try{ await setMonths([roomId],k,k,false); closeModal(); await refreshOwner(); toast(`${shortM(k)} ditandai belum bayar`,"↺"); }catch(e){ handleErr(e); }
   };
 }
+
 function openRange(presetRoom){
   const m=openModal(`
-    <div class="m-head"><div><h3>Tandai banyak bulan</h3><p>Contoh: kamar 3 sudah bayar tunai dari Januari sampai Juni.</p></div><button class="x" data-close aria-label="Tutup">✕</button></div>
-    <div class="m-body" id="rangeForm">
-      <div class="field"><label for="rRoom">Kamar</label><select class="input" id="rRoom" name="room">${O.rooms.map(r=>`<option value="${r.id}" ${presetRoom===r.id?"selected":""}>Kamar ${r.no}: ${esc(r.name)}</option>`).join("")}<option value="all">Semua kamar</option></select></div>
+    <div class="modal-head"><div><h3>Atur rentang bulan</h3><p>Contoh: kamar 3 sudah bayar dari Januari sampai Juni</p></div><button class="x" data-close>✕</button></div>
+    <div class="modal-body" id="rangeForm">
+      <div class="field"><label>Kamar</label><select class="input" name="room">${O.rooms.map(r=>`<option value="${r.id}" ${presetRoom===r.id?"selected":""}>Kamar ${r.no} — ${esc(r.name)}</option>`).join("")}<option value="all">Semua kamar</option></select></div>
       <div class="row2">
-        <div class="field"><label for="rFrom">Dari bulan</label><input class="input" id="rFrom" type="month" name="from" value="${keyOf(parts(CUR).y,0)}"></div>
-        <div class="field"><label for="rTo">Sampai bulan</label><input class="input" id="rTo" type="month" name="to" value="${CUR}"></div>
+        <div class="field"><label>Dari bulan</label><input class="input" type="month" name="from" value="${keyOf(parts(CUR).y,0)}"></div>
+        <div class="field"><label>Sampai bulan</label><input class="input" type="month" name="to" value="${CUR}"></div>
       </div>
-      <div class="field"><label for="rSt">Jadikan</label><select class="input" id="rSt" name="st"><option value="1">Sudah bayar (tunai)</option><option value="0">Belum dibayar</option></select></div>
-      <div class="err" id="rangeErr" role="alert"></div>
-      <button class="btn btn-primary btn-big btn-block" type="button" id="rangeApply">Simpan</button>
-      <p class="help" style="font-size:14px;color:var(--muted);margin-top:10px;text-align:center">Bulan sebelum penghuni mulai ngekos dilewati otomatis.</p>
+      <div class="field"><label>Ubah menjadi</label><div class="seg">
+        <input type="radio" name="st" id="st1" value="1" checked><label for="st1">✓ Sudah bayar</label>
+        <input type="radio" name="st" id="st0" value="0"><label for="st0">✕ Belum bayar</label></div></div>
+      <div class="err" id="rangeErr"></div>
+      <button class="btn btn-primary btn-block" type="button" id="rangeApply">Terapkan</button>
+      <p style="font-size:12px;color:var(--muted);margin-top:10px;text-align:center">Bulan sebelum penghuni mulai ngekos akan dilewati.</p>
     </div>`, "wide");
   const f=m.querySelector("#rangeForm"), b=m.querySelector("#rangeApply");
   bindEnter(f,b);
   b.onclick=()=>busy(b, async()=>{
     const v=vals(f);
-    if(!v.from||!v.to||v.from>v.to) return $("#rangeErr").textContent="Bulan awal harus sebelum atau sama dengan bulan akhir.";
+    if(!v.from||!v.to||v.from>v.to) return $("#rangeErr").textContent="Bulan awal harus sebelum (atau sama dengan) bulan akhir.";
     const ids = v.room==="all" ? O.rooms.map(r=>r.id) : [Number(v.room)];
     if(v.st==="0"){
-      const ok = await confirmBox("Jadikan belum dibayar?", `Semua catatan pembayaran ${labelM(v.from)} sampai ${labelM(v.to)} untuk ${v.room==="all"?"semua kamar":"kamar ini"} akan dihapus, termasuk yang masuk lewat QRIS.`, "Ya, hapus catatan", true);
+      const ok = await confirmBox("Tandai belum bayar?", `Semua catatan pembayaran ${shortM(v.from)} – ${shortM(v.to)} untuk ${v.room==="all"?"semua kamar":"kamar ini"} akan dihapus, termasuk yang masuk lewat QRIS.`, "Ya, hapus", true);
       if(!ok) return openRange(presetRoom);
     }
-    try{ await setMonths(ids, v.from, v.to, v.st==="1"); closeModal(); await refreshOwner(true); toast(`${labelM(v.from)} sampai ${labelM(v.to)} sudah disimpan.`); }
-    catch(e){ if(e.status===401) return handleErr(e); const el=$("#rangeErr"); if(el) el.textContent=e.message; else toast(e.message); }
+    try{ await setMonths(ids, v.from, v.to, v.st==="1"); closeModal(); await refreshOwner(); toast(`${shortM(v.from)} – ${shortM(v.to)} diperbarui`); }
+    catch(e){ if(e.status===401) return handleErr(e); const el=$("#rangeErr"); if(el) el.textContent=e.message; else toast(e.message,"⚠️"); }
   });
 }
 
 function ownerRooms(body){
-  body.innerHTML = `
-    <div class="sec-head"><div><h3>Kamar dan penghuni</h3><p>Ubah data penghuni, isi tanggal mulai ngekos, atau siapkan kamar untuk penghuni baru.</p></div></div>
-    <div class="rooms" style="margin-top:0">${O.rooms.map(r=>{
+  body.innerHTML = `<div class="rooms">${O.rooms.map((r,i)=>{
     const pm=O.pay[r.id], s=statusOf(r,pm,CUR), unpaid=unpaidKeys(r,pm).length;
-    const tag = s==="none" ? `<span class="tag na">Belum mulai</span>` : unpaid ? `<span class="tag no">${unpaid} bulan belum dibayar</span>` : `<span class="tag ok">Lunas</span>`;
-    return `<article class="rcard">
-      <div class="no">Kamar ${r.no}${tag}</div>
-      <h4>${esc(r.name)}</h4>
-      <dl>
-        <dt>Username</dt><dd>${esc(r.username)}</dd>
-        <dt>Mulai ngekos</dt><dd>${r.startDate?fmtTanggal(r.startDate):r.startMonth?labelM(r.startMonth)+" (tanggal belum diisi)":"-"}</dd>
-        <dt>Jatuh tempo</dt><dd>Tiap tanggal ${dueDayOf(r)}</dd>
-        <dt>Sewa</dt><dd>${rupiah(r.price)} per bulan</dd>
-        <dt>Password</dt><dd>${r.usingDefaultPassword?"Masih password awal":"Sudah diganti penghuni"}</dd>
-      </dl>
-      <div class="acts">
-        <button type="button" class="btn btn-sage btn-sm" data-edit="${r.id}">Ubah data</button>
-        <button type="button" class="btn btn-light btn-sm" data-new="${r.id}">Ganti penghuni</button>
-        <button type="button" class="btn btn-light btn-sm" data-reset="${r.id}">Reset password</button>
-      </div>
-    </article>`;}).join("")}</div>`;
+    let total=0; if(r.startMonth && r.startMonth<=CUR) for(let k=r.startMonth;k<=CUR;k=addM(k,1)) total++;
+    const pct = total ? Math.round((total-unpaid)/total*100) : 0;
+    return `<div class="room-card reveal" style="--i:${i}">
+      <div class="top"><span class="room-no">KAMAR ${r.no}</span>${BADGE[s]}</div>
+      <h4>${esc(r.name)}</h4><div class="u">@${esc(r.username)}${r.startMonth?` · sejak ${shortM(r.startMonth)}`:""}${r.usingDefaultPassword?" · 🔑 password awal":""}</div>
+      <div class="price">${rupiah(r.price)} / bulan</div>
+      <div class="progress"><div data-w="${pct}"></div></div>
+      <div class="prog-label">${total?`${pct}% bulan lunas`:"belum ada tagihan"}${unpaid?` · <b style="color:var(--rust)">${unpaid} bln tertunggak</b>`:""}</div>
+      <div class="acts"><button type="button" class="btn btn-sage btn-sm" style="flex:1" data-edit="${r.id}">Edit</button><button type="button" class="btn btn-ghost btn-sm" data-range="${r.id}">Atur bayar</button></div>
+    </div>`;}).join("")}</div>`;
+  setTimeout(()=>body.querySelectorAll(".progress div").forEach(d=>d.style.width=d.dataset.w+"%"),120);
   body.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>openEditRoom(Number(b.dataset.edit)));
-  body.querySelectorAll("[data-new]").forEach(b=>b.onclick=()=>openNewTenant(Number(b.dataset.new)));
-  body.querySelectorAll("[data-reset]").forEach(b=>b.onclick=()=>resetPassword(Number(b.dataset.reset)));
+  body.querySelectorAll("[data-range]").forEach(b=>b.onclick=()=>openRange(Number(b.dataset.range)));
 }
+
 function openEditRoom(id){
   const r=O.rooms.find(x=>x.id===id);
   const m=openModal(`
-    <div class="m-head"><div><h3>Ubah data kamar ${r.no}</h3><p>Perubahan langsung terlihat di halaman penghuni.</p></div><button class="x" data-close aria-label="Tutup">✕</button></div>
-    <div class="m-body" id="editForm">
-      <div class="field"><label for="eName">Nama penghuni</label><input class="input" id="eName" name="name" value="${esc(r.name)}" maxlength="40"></div>
-      <div class="field"><label for="eUser">Username untuk masuk</label><input class="input" id="eUser" name="username" value="${esc(r.username)}" maxlength="24" autocapitalize="none" spellcheck="false"></div>
+    <div class="modal-head"><div><h3>Edit Kamar ${r.no}</h3><p>Ubah data penghuni, harga, atau reset password</p></div><button class="x" data-close>✕</button></div>
+    <div class="modal-body" id="editForm">
+      <div class="field"><label>Nama penghuni</label><input class="input" name="name" value="${esc(r.name)}" maxlength="40"></div>
       <div class="row2">
-        <div class="field"><label for="ePrice">Sewa per bulan (Rp)</label><input class="input" id="ePrice" type="number" inputmode="numeric" name="price" value="${r.price}" min="10000" step="10000"></div>
-        <div class="field"><label for="eStart">Tanggal mulai ngekos</label><input class="input" id="eStart" type="date" name="startDate" value="${r.startDate || (r.startMonth? r.startMonth+"-01" : todayISO())}"></div>
+        <div class="field"><label>Username</label><input class="input" name="username" value="${esc(r.username)}" maxlength="24" autocapitalize="none" spellcheck="false"></div>
+        <div class="field"><label>Harga / bulan</label><input class="input" type="number" name="price" value="${r.price}" min="10000" step="10000"></div>
       </div>
-      <p class="help" style="font-size:14px;color:var(--muted);margin:-6px 0 14px">Tagihan dihitung mulai bulan dari tanggal ini, dan jatuh tempo setiap bulan mengikuti tanggalnya.</p>
-      <div class="err" id="editErr" role="alert"></div>
-      <button class="btn btn-primary btn-big btn-block" type="button" id="editSave">Simpan perubahan</button>
+      <div class="field"><label>Mulai ngekos</label><input class="input" type="month" name="startMonth" value="${r.startMonth||CUR}"></div>
+      <div class="err" id="editErr"></div>
+      <button class="btn btn-primary btn-block" type="button" id="editSave">Simpan</button>
+      <div class="row2" style="margin-top:10px">
+        <button type="button" class="btn btn-ghost btn-sm" id="resetPw">🔑 Reset password</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="newTenant">🔄 Ganti penghuni</button>
+      </div>
     </div>`,"wide");
   const f=m.querySelector("#editForm"), save=m.querySelector("#editSave");
   bindEnter(f,save);
   save.onclick=()=>busy(save, async()=>{
     const v=vals(f);
-    if(!v.startDate) return $("#editErr").textContent="Isi tanggal mulai ngekos dulu.";
-    try{ await api("owner?action=updateRoom",{method:"POST",body:{roomId:id,name:v.name,username:v.username,price:Number(v.price),startDate:v.startDate}}); closeModal(); await refreshOwner(true); toast(`Data kamar ${r.no} tersimpan.`); }
+    try{ await api("owner?action=updateRoom",{method:"POST",body:{roomId:id,name:v.name,username:v.username,price:Number(v.price),startMonth:v.startMonth}}); closeModal(); await refreshOwner(); toast(`Kamar ${r.no} disimpan`); }
     catch(e){ if(e.status===401) return handleErr(e); $("#editErr").textContent=e.message; }
   });
-}
-function openNewTenant(id){
-  const r=O.rooms.find(x=>x.id===id);
-  const m=openModal(`
-    <div class="m-head"><div><h3>Ganti penghuni kamar ${r.no}</h3><p>Pakai ini kalau ${esc(r.name)} pindah dan ada penghuni baru.</p></div><button class="x" data-close aria-label="Tutup">✕</button></div>
-    <div class="m-body" id="ntForm">
-      <div class="field"><label for="nName">Nama penghuni baru</label><input class="input" id="nName" name="name" placeholder="Boleh dikosongkan" maxlength="40"></div>
-      <div class="field"><label for="nStart">Tanggal mulai ngekos</label><input class="input" id="nStart" type="date" name="startDate" value="${todayISO()}"><div class="help">Tagihan penghuni baru dimulai dari bulan ini.</div></div>
-      <div id="ntPrepaid"></div>
-      <p style="font-size:15px;color:var(--muted);margin:4px 0 16px">Akun kamar kembali ke username <b>kamar${r.no}</b> dengan password awal. Penghuni lama otomatis keluar dari akun, dan riwayat bayarnya tetap tersimpan.</p>
-      <div class="err" id="ntErr" role="alert"></div>
-      <button class="btn btn-danger btn-big btn-block" type="button" id="ntSave">Ganti penghuni</button>
-    </div>`,"wide");
-  const f=m.querySelector("#ntForm"), save=m.querySelector("#ntSave");
-  const checkPrepaid=()=>{
-    const sm=(m.querySelector("#nStart").value||todayISO()).slice(0,7);
-    const ahead=Object.keys(O.pay[id]).filter(k=>k>=sm).sort();
-    m.querySelector("#ntPrepaid").innerHTML = ahead.length ? `<label class="check" style="margin-bottom:14px"><input type="checkbox" name="clearFrom" checked><span>Penghuni lama sudah tercatat bayar <b>${ahead.map(shortM).join(", ")}</b>. Hapus catatan itu supaya penghuni baru ditagih normal.</span></label>` : "";
+  m.querySelector("#resetPw").onclick=async()=>{
+    if(!await confirmBox(`Reset password kamar ${r.no}?`, "Password kembali ke <b>password awal</b> (yang kamu atur di DEFAULT_ROOM_PASSWORD) dan penghuni otomatis keluar dari semua perangkat.", "Reset password")) return openEditRoom(id);
+    try{ await api("owner?action=resetPassword",{method:"POST",body:{roomId:id}}); await refreshOwner(); toast(`Password kamar ${r.no} direset ke password awal`,"🔑"); }catch(e){ handleErr(e); }
   };
-  m.querySelector("#nStart").addEventListener("change", checkPrepaid); checkPrepaid();
-  save.onclick=()=>busy(save, async()=>{
-    const v=vals(f);
-    try{
-      await api("owner?action=newTenant",{method:"POST",body:{roomId:id,name:v.name,startDate:v.startDate,clearFrom:!!v.clearFrom}});
-      await refreshOwner(true);
-      openModal(`<div class="m-head"><div><h3>Kamar ${r.no} siap dipakai</h3><p>Berikan data ini ke penghuni baru.</p></div><button class="x" data-close aria-label="Tutup">✕</button></div>
-        <div class="m-body"><div class="cred"><div><span>Username</span><b>kamar${r.no}</b></div><div><span>Password</span><b>password awal kamar</b></div><div><span>Alamat website</span><b>${esc(location.host)}</b></div></div>
-        <p style="font-size:15px;color:var(--muted);margin-bottom:16px">Setelah masuk, penghuni akan diminta mengganti password dan bisa mengubah username.</p>
-        <button type="button" class="btn btn-primary btn-big btn-block" data-close>Selesai</button></div>`);
-    }catch(e){ if(e.status===401) return handleErr(e); $("#ntErr").textContent=e.message; }
-  });
+  m.querySelector("#newTenant").onclick=async()=>{
+    if(!await confirmBox(`Ganti penghuni kamar ${r.no}?`, `Akun kembali ke <b>kamar${r.no}</b> dengan password awal, dan tagihan mulai dari ${labelM(CUR)}. Riwayat pembayaran lama tetap tersimpan.`, "Ya, ganti penghuni", true)) return openEditRoom(id);
+    try{ await api("owner?action=newTenant",{method:"POST",body:{roomId:id}}); await refreshOwner(); toast(`Kamar ${r.no} siap untuk penghuni baru`,"🔄"); }catch(e){ handleErr(e); }
+  };
 }
-async function resetPassword(id){
-  const r=O.rooms.find(x=>x.id===id);
-  if(!await confirmBox(`Reset password kamar ${r.no}?`, `Password ${esc(r.name)} kembali ke <b>password awal kamar</b>, dan semua perangkat yang sedang masuk otomatis keluar. Data dan riwayat bayar tidak berubah.`, "Reset password")) return;
-  try{ await api("owner?action=resetPassword",{method:"POST",body:{roomId:id}}); await refreshOwner(true); toast(`Password kamar ${r.no} kembali ke password awal.`); }catch(e){ handleErr(e); }
-}
+
 function ownerHistory(body){
-  const list=buildHistory(O.payments).slice(0,150);
-  body.innerHTML=`
-    <div class="sec-head"><div><h3>Riwayat bayar</h3><p>Semua pembayaran yang tercatat, terbaru di atas.</p></div></div>
-    <div class="panel" style="padding:8px;overflow-x:auto">
-    <table class="tx"><thead><tr><th>Waktu</th><th>Kamar</th><th>Bulan</th><th>Cara bayar</th><th style="text-align:right">Jumlah</th></tr></thead><tbody>
-    ${list.map(t=>{const r=O.rooms.find(x=>x.id===t.roomId);return `<tr>
-      <td>${fmtDate(t.paidAt)}</td><td><b>${r?`Kamar ${r.no}`:"-"}</b></td><td>${t.months.map(shortM).join(", ")}</td>
-      <td>${t.method==="qris"?"QRIS":"Tunai"}</td><td style="text-align:right;font-weight:700">${rupiah(t.amount)}</td></tr>`;}).join("")
-      || `<tr><td colspan="5" class="empty">Belum ada pembayaran yang tercatat.</td></tr>`}
-    </tbody></table></div>`;
+  const list=buildHistory(O.payments).slice(0,100);
+  body.innerHTML=`<div class="card reveal" style="padding:8px 8px 4px;overflow-x:auto">
+    <table class="tx"><thead><tr><th>Waktu</th><th>Kamar</th><th>Bulan</th><th>Metode</th><th style="text-align:right">Nominal</th></tr></thead><tbody>
+    ${list.map((t,i)=>{const r=O.rooms.find(x=>x.id===t.roomId);return `<tr style="animation-delay:${Math.min(i,20)*35}ms">
+      <td>${fmtDate(t.paidAt)}</td><td><b>${r?r.no+". "+esc(r.name):"-"}</b></td><td>${t.months.map(shortM).join(", ")}</td>
+      <td>${t.method==="qris"?'<span class="badge b-lunas">QRIS</span>':'<span class="badge b-next">Manual</span>'}</td>
+      <td style="text-align:right;font-weight:700;color:var(--olive)">${rupiah(t.amount)}</td></tr>`;}).join("")}
+    </tbody></table>${list.length?"":'<div class="empty">Belum ada transaksi.</div>'}</div>`;
 }
 
 /* =========================================================
-   PASANG SEBAGAI APLIKASI (PWA)
+   PASANG APLIKASI (PWA) — Android & iPhone
    ========================================================= */
-let installEvt = null;
+let installPrompt = null;
 const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-const isIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform==="MacIntel" && navigator.maxTouchPoints>1);
-async function doInstall(){
-  if(!installEvt){ $("#pasang").scrollIntoView({behavior:"smooth"}); return; }
-  installEvt.prompt();
-  const { outcome } = await installEvt.userChoice;
-  installEvt = null; paintInstall();
-  if(outcome==="accepted") toast("Coffee Kos sedang dipasang. Ikonnya akan muncul di layar utama HP.", 5000);
+const ua = navigator.userAgent;
+const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const isAndroid = /Android/i.test(ua);
+if(isStandalone()) document.documentElement.classList.add("is-standalone");
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); installPrompt = e; });
+addEventListener("appinstalled", () => { installPrompt = null; document.documentElement.classList.add("is-standalone"); closeModal(); toast("Aplikasi terpasang di layar utama 🎉"); });
+document.addEventListener("click", e => { if(e.target.closest("[data-install]")) openInstall(); });
+
+function openInstall(){
+  let os = isIOS ? "ios" : "android";
+  const ANDROID = [
+    `Buka website ini di <b>Google Chrome</b>.`,
+    `Ketuk tombol menu <span class="kbd">⋮</span> di pojok kanan atas.`,
+    `Pilih <span class="kbd">Instal aplikasi</span> atau <span class="kbd">Tambahkan ke layar utama</span>.`,
+    `Ketuk <span class="kbd">Instal</span>. Ikon <b>${esc(CFG.kosName)}</b> akan muncul di layar HP.`,
+  ];
+  const IOS = [
+    `Buka website ini di <b>Safari</b>.`,
+    `Ketuk tombol <b>Bagikan</b> <span class="kbd">⬆︎</span> di bagian bawah layar (iPad: di kanan atas).`,
+    `Gulir ke bawah, pilih <span class="kbd">Tambah ke Layar Utama</span> (Add to Home Screen).`,
+    `Ketuk <span class="kbd">Tambah</span> di pojok kanan atas. Ikon <b>${esc(CFG.kosName)}</b> akan muncul di layar HP.`,
+  ];
+  const draw = () => {
+    const steps = os==="ios" ? IOS : ANDROID;
+    const canDirect = os==="android" && installPrompt;
+    const m = openModal(`
+      <div class="modal-head"><div><h3>Pasang aplikasi</h3><p>Buka ${esc(CFG.kosName)} langsung dari layar HP, tanpa Play Store / App Store.</p></div><button class="x" data-close>✕</button></div>
+      <div class="modal-body">
+        <div class="app-preview"><img src="/icons/icon-192.png" alt=""><div><b>${esc(CFG.kosName)}</b><small>Bayar kos & cek status pembayaran</small></div></div>
+        <div class="os-tabs"><button type="button" data-os="android" class="${os==="android"?"on":""}">🤖 Android</button><button type="button" data-os="ios" class="${os==="ios"?"on":""}">📱 iPhone / iPad</button></div>
+        ${canDirect ? `<button type="button" class="btn btn-primary btn-block" id="doInstall" style="margin-bottom:14px">📲 Pasang sekarang</button><p style="font-size:12px;color:var(--muted);text-align:center;margin:-6px 0 12px">atau ikuti langkah manual di bawah</p>` : ""}
+        <div class="howto">${steps.map((t,i)=>`<div class="hs" style="animation-delay:${i*80}ms"><b class="n">${i+1}</b><span>${t}</span></div>`).join("")}</div>
+        <p style="font-size:12px;color:var(--muted);margin-top:14px;line-height:1.5">${os==="ios" ? "Di iPhone, menu ini hanya tersedia di Safari. Kalau kamu membuka lewat Chrome, WhatsApp, atau Instagram, salin link-nya lalu buka di Safari." : "Kalau link dibuka dari WhatsApp atau Instagram, ketuk ⋮ lalu pilih <b>Buka di Chrome</b> dulu."}</p>
+        <button type="button" class="btn btn-ghost btn-block btn-sm" id="copyLink" style="margin-top:10px">🔗 Salin link website</button>
+      </div>`);
+    m.querySelectorAll("[data-os]").forEach(b=>b.onclick=()=>{ os=b.dataset.os; draw(); });
+    const d=m.querySelector("#doInstall");
+    if(d) d.onclick=async()=>{ const pr=installPrompt; installPrompt=null; pr.prompt(); const c=await pr.userChoice; if(c.outcome!=="accepted") draw(); };
+    m.querySelector("#copyLink").onclick=async()=>{ await copyText(location.origin); toast("Link disalin"); };
+  };
+  draw();
 }
-function paintInstall(){
-  document.querySelectorAll("[data-install]").forEach(b=>{ b.classList.toggle("hidden", !installEvt || isStandalone()); b.onclick=doInstall; });
-  const area=$("#installArea"); if(!area) return;
-  if(isStandalone()){ area.innerHTML=`<span class="done">Sudah terpasang di HP ini</span>`; return; }
-  area.innerHTML = `
-    ${installEvt?`<button type="button" class="btn btn-primary btn-big" style="margin-top:16px" data-install>Pasang aplikasi sekarang</button>`:""}
-    <div class="how-os">
-      <div${isIOS()?' style="order:2"':""}><b>HP Android (Chrome)</b>Tekan tombol titik tiga ⋮ di pojok kanan atas, lalu pilih <b style="display:inline">Instal aplikasi</b> atau <b style="display:inline">Tambahkan ke layar utama</b>.</div>
-      <div><b>iPhone (Safari)</b>Tekan tombol Bagikan (kotak dengan panah ke atas) di bawah layar, lalu pilih <b style="display:inline">Tambahkan ke Layar Utama</b>.</div>
-    </div>`;
-  area.querySelectorAll("[data-install]").forEach(b=>b.onclick=doInstall);
-}
-addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; paintInstall(); if(T) renderTenant(); });
-addEventListener("appinstalled", () => { installEvt = null; paintInstall(); if(T) renderTenant(); });
 if("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(()=>{}));
-paintInstall();
 
 boot();
 </script>
