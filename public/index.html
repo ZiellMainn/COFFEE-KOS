@@ -432,8 +432,18 @@ async function api(path, { method="GET", body } = {}){
   }catch(e){ const err = new Error("Tidak bisa terhubung ke server. Cek koneksi internet."); err.network = true; throw err; }
   let data = {};
   try{ data = await r.json(); }catch(e){ if(!r.ok){ const err=new Error("Server tidak merespons dengan benar."); err.network=true; throw err; } }
-  if(!r.ok){ const err = new Error(data.error || "Terjadi kesalahan."); err.status = r.status; throw err; }
+  if(!r.ok){ const err = new Error(data.error || "Terjadi kesalahan."); err.status = r.status; err.detail = data.detail; throw err; }
   return data;
+}
+/* Kalau gagal memuat dashboard, tampilkan layar error (bukan loading terus) */
+function bootError(e){
+  show("#boot");
+  $("#boot").innerHTML = `<div><h2>Gagal memuat data</h2><p>${esc(e.message)}</p>
+    ${e.detail ? `<pre style="margin:14px auto 0;max-width:560px;white-space:pre-wrap;text-align:left;font-size:12px;background:var(--sand);padding:12px;border-radius:12px">${esc(e.detail)}</pre>` : ""}
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:18px">
+      <button class="btn btn-primary" type="button" onclick="location.reload()">Coba lagi</button>
+      <button class="btn btn-ghost" type="button" id="bootLogout">Keluar</button></div></div>`;
+  $("#bootLogout").onclick = async () => { try{ await api("auth?action=logout",{method:"POST"}); }catch(_){} location.reload(); };
 }
 function handleErr(e){
   if(e.status===401){ toast("Sesi berakhir, silakan login lagi","🔒"); return showLogin(); }
@@ -619,7 +629,7 @@ async function openTenant(){
     T = { room:d.room, payments:d.payments, payMap:Object.fromEntries(d.payments.map(p=>[p.month,p])) };
     if(tenantYear===null) tenantYear = parts(CUR).y;
     show("#app"); renderTenant();
-  }catch(e){ handleErr(e); }
+  }catch(e){ if(e.status===401) return handleErr(e); bootError(e); }
 }
 
 function renderTenant(){
@@ -831,7 +841,7 @@ async function loadOwner(){
   if(ownerYear===null) ownerYear = parts(CUR).y;
 }
 async function openOwner(){
-  try{ await loadOwner(); show("#app"); renderOwner(); }catch(e){ handleErr(e); }
+  try{ await loadOwner(); show("#app"); renderOwner(); }catch(e){ if(e.status===401) return handleErr(e); bootError(e); }
 }
 async function refreshOwner(){ try{ await loadOwner(); renderOwnerBody(); }catch(e){ handleErr(e); } }
 
