@@ -620,7 +620,7 @@ a.btn{text-decoration:none}
 
   <div class="login-form-wrap">
     <div class="login-card" id="loginCard">
-      <a class="back-home web-only" href="#">← Kembali ke beranda</a>
+      <a class="back-home" href="#">← Kembali ke beranda</a>
       <h2 class="reveal">Selamat datang 👋</h2>
       <p class="sub reveal" style="--i:1">Masuk pakai username dan password dari pemilik kos.</p>
       <div class="field reveal" style="--i:2">
@@ -858,10 +858,10 @@ async function boot(){
    LOGIN
    ========================================================= */
 /* Pengunjung yang belum login: beranda (#) atau halaman masuk (#masuk).
-   Kalau dibuka dari aplikasi yang terpasang di HP, langsung ke halaman masuk. */
+   Berlaku sama di browser maupun di aplikasi yang terpasang di HP. */
 let homeRendered = false;
 function publicRoute(){
-  if(location.hash === "#masuk" || isStandalone()) showLogin(); else showHome();
+  if(location.hash === "#masuk") showLogin(); else showHome();
 }
 function showHome(){
   closeModal();
@@ -874,7 +874,7 @@ addEventListener("hashchange", () => {
 });
 function showLogin(){
   closeModal(); show("#login");
-  if(location.hash !== "#masuk" && !isStandalone()) history.replaceState(null, "", "#masuk");
+  if(location.hash !== "#masuk") history.replaceState(null, "", "#masuk");
   let w="";
   for(let i=0;i<10;i++){ const col=i%5, row=Math.floor(i/5); if(row===1&&col===2) continue;
     w+=`<rect class="win" fill="#5B5E34" x="${92+col*46}" y="${124+row*44}" width="28" height="26" rx="4" style="animation-delay:${i*.4}s"/>`; }
@@ -1351,7 +1351,7 @@ const KOS_INFO = {
   alamat: "",                 // (opsional) alamat tertulis, contoh: "Jl. Mawar No. 12, Klojen, Malang"
   mapsUrl: "https://maps.app.goo.gl/WrMXCDc4yEUeMANAA",   // link Google Maps kos
   mapsQuery: "",              // (opsional) isi alamat/koordinat supaya peta tampil langsung di halaman
-  whatsapp: "6285100702071",  // nomor pemilik, format 62xxxxxxxxxx
+  whatsapp: "6285100702171",  // nomor pemilik, format 62xxxxxxxxxx
   email: "",                  // (opsional) email pemilik kos
   jamKontak: "Chat WhatsApp",
   khusus: "Wanita",           // kos khusus wanita
